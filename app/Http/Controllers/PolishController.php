@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Brand;
+use App\Models\Polishes;
 use Illuminate\Http\Request;
 
-class BrandController extends Controller
+class PolishController extends Controller
 {
+
     public function index()
     {
-        $brands = Brand::all();
-        return view('brands.index', compact('brands'));
+        $polishes = Polishes::all();
+        return view('polishes.index', compact('polishes'));
     }
 
     public function create()
     {
-        return view('brands.create');
+        return view('polishes.create');
     }
 
     public function store(Request $request)
@@ -63,5 +64,5 @@ class BrandController extends Controller
 
         return redirect()->route('brands.index')->with('success', 'Brand deleted successfully.');
     }
-}
 
+}

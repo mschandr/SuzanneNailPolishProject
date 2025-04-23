@@ -59,7 +59,7 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="header">Suzanne's Nail Polish Tracker</h1>
+    <!-- <h1 class="header">Suzanne's Nail Polish Tracker</h1> -->
     @yield('content')
 </div>
 </body>
