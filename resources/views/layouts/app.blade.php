@@ -23,10 +23,18 @@
             margin-bottom: 1.5rem;
         }
 
+        footer {
+            color: #666;
+            font-size: 0.9rem;
+            padding: 1rem;
+            border-top: 1px solid #ccc;
+            margin-top: 3rem;
+        }
+
         .card {
             background-color: #ffffff;
             border-left: 6px solid #C2185B;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
@@ -59,8 +67,12 @@
 </head>
 <body>
 <div class="container">
-    <!-- <h1 class="header">Suzanne's Nail Polish Tracker</h1> -->
+    <h1 class="header">Suzanne's Nail Polish Tracker</h1>
     @yield('content')
 </div>
+<footer style="text-align: center; margin-top: 4rem; font-size: 0.9rem; color: #888;">
+    <p>&copy; {{ date('Y') }} Suzanne's Nail Polish Tracker</p>
+    <p><a href="{{ route('home') }}">Back to Main Page</a></p>
+</footer>
 </body>
 </html>

@@ -12,4 +12,25 @@ class WornController extends Controller
         $worn = Worn::all();
         return view('worn.index', compact('worn'));
     }
+
+    public function create()
+    {
+        return view('worn.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([]);
+    }
+
+    public function recent(Worn $worn, Request $request = null)
+    {
+        $last = $request->get('last') ?? 5;
+        return view('worn.recent', compact('worn', 'last'));
+    }
+
+    public function search(Worn $worn)
+    {
+        return view('worn.search', compact('worn'));
+    }
 }

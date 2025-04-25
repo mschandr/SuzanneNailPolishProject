@@ -8,7 +8,7 @@ use App\Http\Controllers\WornController;
 
 Route::get('/', function () {
     return view('home');
-});
+})->name('home');
 
 
 Route::resource('brands', BrandController::class);

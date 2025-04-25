@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('polishes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('brand_id')->constrained()->onDelete('cascade');
-            $table->foreignId('location_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('brand_id')->constrained('brands')->onDelete('cascade');
+            $table->foreignId('location_id')->constrained('locations')->onDelete('cascade');
             $table->string('name');
-            $table->string('colour_name');
             $table->string('shade'); // e.g., blue, pink, red
+            $table->foreignId('polish_collection_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }
