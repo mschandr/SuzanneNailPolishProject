@@ -14,6 +14,7 @@ Route::get('/', function () {
 Route::resource('brands', BrandController::class);
 Route::resource('locations', LocationsController::class);
 Route::resource('polishes', PolishController::class);
+Route::resource('worn', WornController::class);
+
 Route::get('worn/recent', [WornController::class, 'recent'])->name('worn.recent');
 Route::get('worn/search', [WornController::class, 'search'])->name('worn.search');
-Route::resource('worn', WornController::class);

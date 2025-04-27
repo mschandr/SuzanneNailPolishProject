@@ -21,13 +21,13 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|unique:brands|max:255',
-        ]);
+                               'name' => 'required|string|unique:brands|max:255',
+                           ]);
 
         Brand::create([
-            'name' => $request->input('name'),
-            'total' => 0,
-        ]);
+                          'name'  => $request->input('name'),
+                          'total' => 0,
+                      ]);
 
         return redirect()->route('brands.index')->with('success', 'Brand added successfully.');
     }
@@ -40,12 +40,12 @@ class BrandController extends Controller
     public function update(Request $request, Brand $brand)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+                               'name' => 'required|string|max:255',
+                           ]);
 
         $brand->update([
-            'name' => $request->input('name'),
-        ]);
+                           'name' => $request->input('name'),
+                       ]);
 
         return redirect()->route('brands.index')->with('success', 'Brand updated successfully.');
     }

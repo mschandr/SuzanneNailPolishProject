@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <h2>Add New Polish</h2>
+        <h2>Edit Brand</h2>
 
         @if ($errors->any())
             <div class="highlight">
@@ -14,11 +14,11 @@
             </div>
         @endif
 
-        <form action="{{ route('polishes.store') }}" method="POST">
+        <form action="{{ route('polishes.update', ['polish' => $polish->id]) }}" method="POST">
             @csrf
-
+            @method('PUT')
             <label for="name">Polish Name:</label><br>
-            <input type="text" name="name" id="name" value="{{ old('name') }}" required><br><br>
+            <input type="text" name="name" id="name" value="{{ old('name', $polish->name) }}" required><br><br>
 
             <label for="shade">Shade:</label><br>
             <select name="shade" id="shade" required>
@@ -40,7 +40,7 @@
 
             <label for="location_id">Location:</label><br>
             <select name="location_id" id="location_id">
-                <option value="">Select Location</option>
+                <option value="">Select Location (optional)</option>
                 @foreach($locations as $location)
                     <option value="{{ $location->id }}" {{ old('location_id') == $location->id ? 'selected' : '' }}>
                         {{ $location->name }}
@@ -66,6 +66,5 @@
                 <option value="top_coat">Top coat</option>
             </select><br/><br/>
             <button type="submit" class="button">Save Polish</button>
-        </form>
     </div>
 @endsection
