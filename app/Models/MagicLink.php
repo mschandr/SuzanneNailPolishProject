@@ -11,7 +11,7 @@ class MagicLink extends Model
 {
     use HasUuids, Prunable;
 
-    protected $guarded = [];
+    protected $fillable = ['email', 'token_hash', 'expires_at'];
 
     public function prunable(): Builder
     {

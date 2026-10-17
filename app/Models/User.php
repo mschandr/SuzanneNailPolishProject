@@ -20,6 +20,8 @@ class User extends Authenticatable
 
     protected $attributes = ['is_admin' => false];
 
+    // signup_method is set by the app, never by mass assignment.
+
     /**
      * Get the attributes that should be cast.
      *

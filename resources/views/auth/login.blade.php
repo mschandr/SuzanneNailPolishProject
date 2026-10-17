@@ -8,4 +8,7 @@
         @error('email')<p>{{ $message }}</p>@enderror
         <button>Email me a sign-in link</button>
     </form>
+    @unless ($open)
+        <p>New sign-ups are closed. Don't have an account? <a href="/invite-request">Ask to request an invite</a>.</p>
+    @endunless
 @endsection

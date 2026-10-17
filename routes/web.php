@@ -1,23 +1,32 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\ValueListController;
 use App\Http\Controllers\Auth\DisplayNameController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\InviteRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 Route::get('/health', HealthController::class);
 
 Route::middleware('guest')->group(function () {
-    Route::view('/login', 'auth.login')->name('login');
+    Route::get('/login', [MagicLinkController::class, 'create'])->name('login');
     Route::post('/login', [MagicLinkController::class, 'store'])->middleware('throttle:magic-link');
     Route::view('/login/sent', 'auth.sent');
+    Route::get('/invite-request', [InviteRequestController::class, 'create']);
+    Route::post('/invite-request', [InviteRequestController::class, 'store'])->middleware('throttle:magic-link');
+    Route::view('/invite-request/sent', 'auth.invite-request-sent');
     Route::get('/login/{token}', [MagicLinkController::class, 'show'])->middleware('throttle:20,1');
     Route::post('/login/{token}', [MagicLinkController::class, 'consume'])->middleware('throttle:20,1');
 });
+
+// Outside the guest group: someone already signed in may still open an invite.
+Route::get('/invite/{token}', [InviteRequestController::class, 'showInvite'])->middleware('throttle:20,1');
+Route::post('/invite/{token}', [InviteRequestController::class, 'redeem'])->middleware('throttle:20,1');
 
 Route::middleware('auth')->group(function () {
     Route::view('/display-name', 'auth.display-name');
@@ -31,6 +40,8 @@ Route::middleware('auth')->group(function () {
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::view('/', 'admin.index');
+            Route::get('/invites', [InviteController::class, 'index']);
+            Route::post('/invites', [InviteController::class, 'store']);
             Route::get('/users', [AdminUserController::class, 'index']);
             Route::post('/users', [AdminUserController::class, 'store']);
             Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->whereUuid('user');
