@@ -14,6 +14,7 @@ class BottleController extends Controller
     {
         $polish = Polish::findOrFail($polish);
         $user = $request->user();
+        abort_unless($polish->usableBy($user), 404);
 
         $data = $request->validate([
             'location_id' => ['nullable', 'uuid', Rule::exists('locations', 'id')->where('user_id', $user->id)],

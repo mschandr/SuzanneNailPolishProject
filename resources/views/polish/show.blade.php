@@ -42,7 +42,18 @@
             </form>
         @endif
     </section>
-    @if (auth()->user()?->is_admin)
+    @if ($polish->isPrivate() && $polish->user_id === auth()->id())
+        <section>
+            <p><strong>Private</strong> — only you can see this polish. <a href="/my-polishes/{{ $polish->id }}/edit">Edit</a></p>
+            @if ($polish->promotion_requested_at)
+                <form method="post" action="/my-polishes/{{ $polish->id }}/suggest">@csrf @method('delete')
+                    <button>Withdraw my suggestion</button> (waiting for the Admin)</form>
+            @else
+                <form method="post" action="/my-polishes/{{ $polish->id }}/suggest">@csrf
+                    <button>Suggest for the public Catalog</button></form>
+            @endif
+        </section>
+    @elseif (! $polish->isPrivate() && auth()->user()?->is_admin)
         <p><a href="/admin/polishes/{{ $polish->id }}/edit">Edit (Admin)</a></p>
     @endif
 @endsection

@@ -31,6 +31,18 @@ class Brand extends Model
         });
     }
 
+    /** Brands with at least one public Polish; a brand that exists only for Private Polishes is not public. */
+    public function scopeWithPublicPolishes($query)
+    {
+        return $query->whereHas('polishes', fn ($q) => $q->public());
+    }
+
+    /** A brand only matters to cached public pages once it has a public Polish. */
+    public function affectsPublicCatalog(): bool
+    {
+        return $this->exists && $this->polishes()->public()->exists();
+    }
+
     public function polishes(): HasMany
     {
         return $this->hasMany(Polish::class);

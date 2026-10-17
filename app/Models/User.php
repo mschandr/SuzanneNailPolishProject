@@ -45,4 +45,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Location::class);
     }
+
+    public function privatePolishes(): HasMany
+    {
+        return $this->hasMany(Polish::class);
+    }
 }

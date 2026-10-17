@@ -18,8 +18,8 @@ class CatalogBrowseTest extends TestCase
 
     public function test_anyone_can_see_the_list_of_brands(): void
     {
-        Brand::create(['name' => 'Holo Taco']);
-        Brand::create(['name' => 'ILNP']);
+        $this->polish(Brand::create(['name' => 'Holo Taco']), 'Apple');
+        $this->polish(Brand::create(['name' => 'ILNP']), 'Pear');
 
         $this->get('/catalog')->assertOk()->assertSeeInOrder(['Holo Taco', 'ILNP']);
     }
@@ -91,10 +91,11 @@ class CatalogBrowseTest extends TestCase
         $this->get('/catalog/holo-taco?page=99')->assertNotFound();
     }
 
-    public function test_an_empty_brand_still_shows_page_one(): void
+    public function test_a_brand_with_no_public_polishes_is_not_listed_or_reachable(): void
     {
         Brand::create(['name' => 'Holo Taco']);
 
-        $this->get('/catalog/holo-taco')->assertOk();
+        $this->get('/catalog')->assertDontSee('Holo Taco');
+        $this->get('/catalog/holo-taco')->assertNotFound();
     }
 }

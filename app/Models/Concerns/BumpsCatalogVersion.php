@@ -9,7 +9,10 @@ trait BumpsCatalogVersion
 {
     protected static function bootBumpsCatalogVersion(): void
     {
-        static::saved(fn () => CatalogCache::bump());
-        static::deleted(fn () => CatalogCache::bump());
+        // A User's Private Polish must not invalidate the public cache for everyone.
+        $affects = fn ($model) => ! method_exists($model, 'affectsPublicCatalog') || $model->affectsPublicCatalog();
+
+        static::saved(fn ($model) => $affects($model) && CatalogCache::bump());
+        static::deleted(fn ($model) => $affects($model) && CatalogCache::bump());
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\PolishController as AdminPolishController;
+use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\ValueListController;
 use App\Http\Controllers\Auth\DisplayNameController;
 use App\Http\Controllers\BottleController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InviteRequestController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PolishController;
+use App\Http\Controllers\PrivatePolishController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -49,6 +51,16 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/collection', [CollectionController::class, 'index']);
 
+        Route::get('/my-polishes', [PrivatePolishController::class, 'index']);
+        Route::get('/my-polishes/create', [PrivatePolishController::class, 'create']);
+        Route::post('/my-polishes', [PrivatePolishController::class, 'store']);
+        Route::get('/my-polishes/{id}/edit', [PrivatePolishController::class, 'edit'])->whereUuid('id');
+        Route::put('/my-polishes/{id}', [PrivatePolishController::class, 'update'])->whereUuid('id');
+        Route::delete('/my-polishes/{id}', [PrivatePolishController::class, 'destroy'])->whereUuid('id');
+
+        Route::post('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'suggest'])->whereUuid('id');
+        Route::delete('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'withdraw'])->whereUuid('id');
+
         Route::get('/locations', [LocationController::class, 'index']);
         Route::post('/locations', [LocationController::class, 'store']);
         Route::put('/locations/{id}', [LocationController::class, 'update'])->whereUuid('id');
@@ -65,6 +77,9 @@ Route::middleware('auth')->group(function () {
             Route::post('/polishes', [AdminPolishController::class, 'store']);
             Route::get('/polishes/{id}/edit', [AdminPolishController::class, 'edit'])->whereUuid('id');
             Route::put('/polishes/{id}', [AdminPolishController::class, 'update'])->whereUuid('id');
+            Route::get('/suggestions', [SuggestionController::class, 'index']);
+            Route::post('/suggestions/{id}/promote', [SuggestionController::class, 'promote'])->whereUuid('id');
+            Route::delete('/suggestions/{id}', [SuggestionController::class, 'decline'])->whereUuid('id');
             Route::get('/invites', [InviteController::class, 'index']);
             Route::post('/invites', [InviteController::class, 'store']);
             Route::get('/users', [AdminUserController::class, 'index']);

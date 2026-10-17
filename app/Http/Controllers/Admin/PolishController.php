@@ -22,7 +22,7 @@ class PolishController extends Controller
 
     public function edit(string $id)
     {
-        return $this->form(Polish::with(['brand', 'finishes'])->findOrFail($id));
+        return $this->form(Polish::public()->with(['brand', 'finishes'])->findOrFail($id));
     }
 
     public function store(Request $request)
@@ -32,7 +32,8 @@ class PolishController extends Controller
 
     public function update(Request $request, string $id)
     {
-        return $this->save($request, Polish::findOrFail($id));
+        // Private Polishes are never edited here; they become editable once promoted.
+        return $this->save($request, Polish::public()->findOrFail($id));
     }
 
     private function form(Polish $polish)
@@ -41,7 +42,7 @@ class PolishController extends Controller
             'polish' => $polish,
             'colorFamilies' => ColorFamily::orderBy('name_key')->get(),
             'finishes' => Finish::orderBy('name_key')->get(),
-            'brands' => Brand::orderBy('name_key')->pluck('name'),
+            'brands' => Brand::withPublicPolishes()->orderBy('name_key')->pluck('name'),
         ]);
     }
 
@@ -59,7 +60,7 @@ class PolishController extends Controller
                 function ($attribute, $value, $fail) use ($request, $polish) {
                     $brand = Brand::where('name_key', Str::lower($request->input('brand')))->first();
 
-                    $taken = $brand && Polish::where('brand_id', $brand->id)
+                    $taken = $brand && Polish::public()->where('brand_id', $brand->id)
                         ->where('name_key', Str::lower($value))
                         ->when($polish->exists, fn ($q) => $q->where('id', '!=', $polish->id))
                         ->exists();
