@@ -11,7 +11,21 @@
     </style>
 </head>
 <body>
-    <header><strong>Nail Polish Collector</strong></header>
+    <header>
+        <strong>Nail Polish Collector</strong>
+        <nav style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem">
+            <a href="/catalog" style="color:#fff">Catalog</a>
+            @auth
+                @if (filled(auth()->user()->display_name))
+                    <a href="/collection" style="color:#fff">My collection</a>
+                    @if (auth()->user()->is_admin)<a href="/admin" style="color:#fff">Admin</a>@endif
+                @endif
+                <form method="post" action="/logout" style="display:inline">@csrf<button>Sign out</button></form>
+            @else
+                <a href="/login" style="color:#fff">Sign in</a>
+            @endauth
+        </nav>
+    </header>
     <main>@yield('content')</main>
 </body>
 </html>

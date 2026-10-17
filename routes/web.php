@@ -5,11 +5,14 @@ use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\PolishController as AdminPolishController;
 use App\Http\Controllers\Admin\ValueListController;
 use App\Http\Controllers\Auth\DisplayNameController;
+use App\Http\Controllers\BottleController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InviteRequestController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\PolishController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +46,18 @@ Route::middleware('auth')->group(function () {
     // requirement cannot be bypassed.
     Route::middleware('display-name')->group(function () {
         Route::view('/home', 'home');
+
+        Route::get('/collection', [CollectionController::class, 'index']);
+
+        Route::get('/locations', [LocationController::class, 'index']);
+        Route::post('/locations', [LocationController::class, 'store']);
+        Route::put('/locations/{id}', [LocationController::class, 'update'])->whereUuid('id');
+        Route::delete('/locations/{id}', [LocationController::class, 'destroy'])->whereUuid('id');
+
+        Route::put('/bottles/{id}', [BottleController::class, 'update'])->whereUuid('id');
+        Route::delete('/bottles/{id}', [BottleController::class, 'destroy'])->whereUuid('id');
+
+        Route::post('/polishes/{polish}/bottles', [BottleController::class, 'store'])->whereUuid('polish');
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::view('/', 'admin.index');

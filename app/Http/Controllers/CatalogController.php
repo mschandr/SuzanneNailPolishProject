@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bottle;
 use App\Models\Brand;
 use App\Support\CatalogCache;
 use Illuminate\Http\Request;
@@ -30,6 +31,14 @@ class CatalogController extends Controller
             return ['brand' => $brand, 'polishes' => $polishes];
         });
 
-        return view('catalog.brand', $data);
+        // Read per request, outside the shared cache, so one User's badges never reach another.
+        $ownedIds = $request->user()
+            ? $request->user()->bottles()
+                ->where('status', Bottle::OWNED)
+                ->whereIn('polish_id', $data['polishes']->pluck('id'))
+                ->pluck('polish_id')->flip()
+            : collect();
+
+        return view('catalog.brand', $data + ['ownedIds' => $ownedIds]);
     }
 }

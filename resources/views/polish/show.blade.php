@@ -19,6 +19,29 @@
     @if ($polish->vendor_url)
         <p><a href="{{ $polish->vendor_url }}" rel="noopener nofollow">Buy from the vendor</a></p>
     @endif
+    <section>
+        @if ($bottles === null)
+            <p><a href="/login">Sign in</a> to track whether you own this.</p>
+        @else
+            @if (session('status'))<p>{{ session('status') }}</p>@endif
+            @php($owned = $bottles->where('status', \App\Models\Bottle::OWNED))
+            <p>{{ $owned->isEmpty() ? 'You don\'t own this yet.' : 'You own '.$owned->count() }}</p>
+            <form method="post" action="/polishes/{{ $polish->id }}/bottles">
+                @csrf
+                <label>Location
+                    <select name="location_id">
+                        <option value="">No location</option>
+                        @foreach ($locations as $location)
+                            <option value="{{ $location->id }}">{{ $location->name }}</option>
+                        @endforeach
+                    </select></label>
+                <label>or new <input name="new_location" maxlength="100"></label>
+                @error('location_id')<p>{{ $message }}</p>@enderror
+                @error('new_location')<p>{{ $message }}</p>@enderror
+                <button>{{ $owned->isEmpty() ? 'I own this' : 'Add another' }}</button>
+            </form>
+        @endif
+    </section>
     @if (auth()->user()?->is_admin)
         <p><a href="/admin/polishes/{{ $polish->id }}/edit">Edit (Admin)</a></p>
     @endif

@@ -13,6 +13,7 @@
                         <img src="{{ Storage::disk('public')->url($polish->swatch_path) }}" alt="{{ $polish->name }}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover">
                     @endif
                     <div>{{ $polish->name }}</div>
+                    @if ($ownedIds->has($polish->id))<div data-owned><strong>✓ Owned</strong></div>@endif
                 </a>
             </li>
         @endforeach

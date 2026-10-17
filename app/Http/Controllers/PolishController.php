@@ -24,6 +24,11 @@ class PolishController extends Controller
             return redirect($polish->url(), 301);
         }
 
-        return view('polish.show', ['polish' => $polish]);
+        // Per-user data is read here, outside the shared cache.
+        $user = auth()->user();
+        $bottles = $user?->bottles()->where('polish_id', $polish->id)->get();
+        $locations = $user?->locations()->orderBy('name_key')->get();
+
+        return view('polish.show', ['polish' => $polish, 'bottles' => $bottles, 'locations' => $locations]);
     }
 }
