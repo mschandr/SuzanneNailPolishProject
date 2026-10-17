@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
  */
 trait IsNamedValue
 {
-    use HasUuids;
+    use BumpsCatalogVersion, HasUuids;
 
     protected static function bootIsNamedValue(): void
     {

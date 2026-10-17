@@ -2,16 +2,22 @@
 
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InviteController;
+use App\Http\Controllers\Admin\PolishController as AdminPolishController;
 use App\Http\Controllers\Admin\ValueListController;
 use App\Http\Controllers\Auth\DisplayNameController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\InviteRequestController;
+use App\Http\Controllers\PolishController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 Route::get('/health', HealthController::class);
+
+Route::get('/catalog', [CatalogController::class, 'index']);
+Route::get('/catalog/{slug}', [CatalogController::class, 'brand']);
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [MagicLinkController::class, 'create'])->name('login');
@@ -40,6 +46,10 @@ Route::middleware('auth')->group(function () {
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::view('/', 'admin.index');
+            Route::get('/polishes/create', [AdminPolishController::class, 'create']);
+            Route::post('/polishes', [AdminPolishController::class, 'store']);
+            Route::get('/polishes/{id}/edit', [AdminPolishController::class, 'edit'])->whereUuid('id');
+            Route::put('/polishes/{id}', [AdminPolishController::class, 'update'])->whereUuid('id');
             Route::get('/invites', [InviteController::class, 'index']);
             Route::post('/invites', [InviteController::class, 'store']);
             Route::get('/users', [AdminUserController::class, 'index']);
@@ -54,3 +64,6 @@ Route::middleware('auth')->group(function () {
         });
     });
 });
+
+// Keep last: a catch-all for /<brand>/<uuid>/<color-name>, so it can never shadow another route.
+Route::get('/{brand}/{id}/{slug}', [PolishController::class, 'show'])->whereUuid('id');
