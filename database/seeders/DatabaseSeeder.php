@@ -2,24 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\ColorFamily;
+use App\Models\Finish;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $finishes = ['Creme', 'Shimmer', 'Glitter', 'Holographic', 'Matte', 'Jelly', 'Metallic', 'Duochrome', 'Magnetic', 'Thermal', 'Sheer', 'Flakie'];
+        $colors = ['Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Purple', 'Pink', 'Nude', 'Brown', 'Black', 'White', 'Gray', 'Clear', 'Multicolor'];
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        foreach ($finishes as $name) {
+            Finish::firstOrCreate(['name_key' => Str::lower($name)], ['name' => $name]);
+        }
+        foreach ($colors as $name) {
+            ColorFamily::firstOrCreate(['name_key' => Str::lower($name)], ['name' => $name]);
+        }
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\ValueListController;
 use App\Http\Controllers\Auth\DisplayNameController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
@@ -26,5 +28,18 @@ Route::middleware('auth')->group(function () {
     // requirement cannot be bypassed.
     Route::middleware('display-name')->group(function () {
         Route::view('/home', 'home');
+
+        Route::middleware('admin')->prefix('admin')->group(function () {
+            Route::view('/', 'admin.index');
+            Route::get('/users', [AdminUserController::class, 'index']);
+            Route::post('/users', [AdminUserController::class, 'store']);
+            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->whereUuid('user');
+
+            foreach (['finishes', 'color-families'] as $list) {
+                Route::get("/{$list}", [ValueListController::class, 'index'])->defaults('list', $list);
+                Route::post("/{$list}", [ValueListController::class, 'store'])->defaults('list', $list);
+                Route::put("/{$list}/{id}", [ValueListController::class, 'update'])->defaults('list', $list)->whereUuid('id');
+            }
+        });
     });
 });
