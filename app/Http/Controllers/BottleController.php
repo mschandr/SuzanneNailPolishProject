@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Bottle;
 use App\Models\Polish;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -18,7 +17,7 @@ class BottleController extends Controller
 
         $data = $request->validate([
             'location_id' => ['nullable', 'uuid', Rule::exists('locations', 'id')->where('user_id', $user->id)],
-            'new_location' => ['nullable', 'string', 'max:100'],
+            'new_location' => ['nullable', 'string', 'max:100', 'prohibits:location_id'],
         ]);
 
         $locationId = $data['location_id'] ?? null;
@@ -26,7 +25,7 @@ class BottleController extends Controller
         if (filled($data['new_location'] ?? null)) {
             $name = trim($data['new_location']);
             // Typing an existing name reuses that Location instead of failing.
-            $locationId = $this->locationIdFor($user, $name);
+            $locationId = $user->locationIdNamed($name);
         }
 
         $bottle = new Bottle(['polish_id' => $polish->id, 'location_id' => $locationId]);
@@ -61,21 +60,5 @@ class BottleController extends Controller
         $request->user()->bottles()->findOrFail($id)->delete();
 
         return back()->with('status', 'Bottle removed.');
-    }
-
-    /** Reuse the User's Location of that name, or create it; a double-submit race falls back to the winner's row. */
-    private function locationIdFor($user, string $name): string
-    {
-        $find = fn () => $user->locations()->where('name_key', \Illuminate\Support\Str::lower($name))->value('id');
-
-        if ($id = $find()) {
-            return $id;
-        }
-
-        try {
-            return $user->locations()->create(['name' => $name])->id;
-        } catch (UniqueConstraintViolationException) {
-            return $find();
-        }
     }
 }

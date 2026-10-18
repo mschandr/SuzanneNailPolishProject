@@ -156,4 +156,15 @@ class MarkOwnedTest extends TestCase
         $this->assertSame(0, Location::count());
         $this->assertSame(1, Bottle::count());
     }
+
+    public function test_choosing_a_location_and_typing_a_new_one_is_refused_rather_than_guessed(): void
+    {
+        $user = User::factory()->create();
+        $location = $user->locations()->create(['name' => 'China cabinet']);
+
+        $this->own($user, ['location_id' => $location->id, 'new_location' => 'Under the bed'])
+            ->assertSessionHasErrors('new_location');
+
+        $this->assertSame(0, Bottle::count());
+    }
 }

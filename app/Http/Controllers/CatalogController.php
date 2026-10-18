@@ -41,6 +41,9 @@ class CatalogController extends Controller
                 ->pluck('polish_id')->flip()
             : collect();
 
-        return view('catalog.brand', $data + ['ownedIds' => $ownedIds]);
+        return view('catalog.brand', $data + [
+            'ownedIds' => $ownedIds,
+            'locations' => $request->user()?->locations()->orderBy('name_key')->get(),
+        ]);
     }
 }
