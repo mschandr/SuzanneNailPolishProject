@@ -1,0 +1,5 @@
+# Manicure photos are served through the app, cached by nginx
+
+Manicure photos can be private, and a public file URL stays fetchable by anyone who learns it. So they live on a private disk and are served by `/photos/{id}/{full|thumb}`, which checks the Manicure's current visibility on every request (private or hidden = 404, the same as a missing one). Public responses carry `Cache-Control: public, max-age=60` and no cookies, so nginx's `fastcgi_cache` answers repeats without PHP (96-97% of photo requests in load testing); private ones are `private, no-store` and never cached. We chose this over putting public URLs on a CDN/Spaces, which would be faster still but cannot honour "make this private" or a moderator's takedown.
+
+Consequences: a photo can be served for up to 60 seconds after its Manicure goes private or is hidden, if it was in nginx's cache; PHP serves the first request for each photo per minute; and the nginx cache must be configured on the server (`deploy/nginx/nailpolish.conf`), because the app alone does not cache. If photos ever move to Spaces, serve private ones through short-lived signed URLs and keep this check in front of them.

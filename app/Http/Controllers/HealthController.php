@@ -12,6 +12,13 @@ class HealthController extends Controller
         DB::select('select 1');
         Queue::size();
 
-        return response()->json(['app' => 'ok', 'database' => 'ok', 'queue' => 'ok']);
+        $status = ['app' => 'ok', 'database' => 'ok', 'queue' => 'ok'];
+
+        // Make it obvious (to monitoring, to anyone looking) if the rate limits have been switched off.
+        if (config('nailpolish.load_test_mode')) {
+            $status['warning'] = 'LOAD_TEST_MODE is on: rate limits are disabled. Never leave this on in production.';
+        }
+
+        return response()->json($status);
     }
 }

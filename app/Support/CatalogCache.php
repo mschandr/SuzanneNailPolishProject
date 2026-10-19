@@ -20,8 +20,46 @@ class CatalogCache
     public static function remember(string $key, Closure $callback): mixed
     {
         $version = self::version();
+        $cacheKey = "catalog:v{$version}:{$key}";
 
-        return Cache::remember("catalog:v{$version}:{$key}", self::TTL, $callback);
+        $value = Cache::get($cacheKey);
+
+        if ($value === null || self::isUnreadable($value)) {
+            // Miss, or a stored value that cannot be read back (a class missing from cache.serializable_classes comes
+            // back as an incomplete object): rebuild it and overwrite, rather than serving something broken.
+            $value = $callback();
+            Cache::put($cacheKey, $value, self::TTL);
+        }
+
+        return $value;
+    }
+
+    /** True if the value (or, for a collection or paginator, its first item) is a PHP "incomplete class" shell. */
+    private static function isUnreadable(mixed $value): bool
+    {
+        $incomplete = fn ($v) => $v instanceof \__PHP_Incomplete_Class;
+
+        if ($incomplete($value)) {
+            return true;
+        }
+
+        if ($value instanceof \Illuminate\Support\Collection) {
+            return $incomplete($value->first());
+        }
+
+        if ($value instanceof \Illuminate\Pagination\AbstractPaginator) {
+            return $incomplete($value->items()[0] ?? null);
+        }
+
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (self::isUnreadable($item)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /** A random token, not a counter: concurrent bumps can't collide and a flushed cache can't revive old keys. */

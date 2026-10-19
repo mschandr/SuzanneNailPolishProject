@@ -100,4 +100,57 @@ class CatalogCacheTest extends TestCase
 
         $this->get("/holo-taco/{$polish->id}/renamed")->assertOk()->assertSee('Renamed');
     }
+
+    // --- the cache must survive a store that serializes (database, file, Redis), as production uses ---------------
+
+    public function test_the_catalog_pages_work_on_the_second_view_when_served_from_a_serializing_cache(): void
+    {
+        $polish = $this->polish();
+        $polish->finishes()->attach(Finish::create(['name' => 'Creme'])->id);
+        $polish->update(['color_family_id' => ColorFamily::create(['name' => 'Red'])->id]);
+
+        foreach (['/catalog', '/catalog/holo-taco', $polish->fresh('brand')->url()] as $url) {
+            $first = $this->get($url)->assertOk();
+            $second = $this->get($url)->assertOk();
+            $this->assertSame(
+                preg_replace('/_token" value="[^"]+"/', '', $first->getContent()),
+                preg_replace('/_token" value="[^"]+"/', '', $second->getContent()),
+                "{$url}: the cached copy must render exactly like the fresh one",
+            );
+        }
+    }
+
+    public function test_a_cached_polish_page_still_shows_its_finishes_and_colour(): void
+    {
+        $polish = $this->polish();
+        $polish->finishes()->attach(Finish::create(['name' => 'Holographic'])->id);
+        $polish->update(['color_family_id' => ColorFamily::create(['name' => 'Blue'])->id]);
+        $this->get($polish->fresh('brand')->url())->assertOk();
+
+        $this->get($polish->fresh('brand')->url())->assertOk()->assertSee('Holographic')->assertSee('Blue');
+    }
+
+    public function test_a_cached_brand_page_keeps_its_pagination(): void
+    {
+        $brand = $this->polish()->brand; // creates the brand
+        foreach (range(1, 30) as $i) {
+            Polish::create(['brand_id' => $brand->id, 'name' => sprintf('Extra %02d', $i)]);
+        }
+        $this->get('/catalog/holo-taco?page=2')->assertOk();
+
+        $this->get('/catalog/holo-taco?page=2')->assertOk()->assertSee('Extra 25');
+    }
+
+    public function test_a_cached_value_that_comes_back_unreadable_is_rebuilt_not_served(): void
+    {
+        $polish = $this->polish();
+        $this->get('/catalog')->assertOk(); // warms the cache under the current version
+        $version = \Illuminate\Support\Facades\Cache::get('catalog:version');
+
+        // Simulate a class that is missing from cache.serializable_classes: it comes back as an incomplete object.
+        $broken = unserialize('O:8:"Missing_":0:{}');
+        \Illuminate\Support\Facades\Cache::put("catalog:v{$version}:brands", $broken, 3600);
+
+        $this->get('/catalog')->assertOk()->assertSee($polish->brand->name);
+    }
 }

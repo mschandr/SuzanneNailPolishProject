@@ -49,13 +49,13 @@ Route::middleware('guest')->group(function () {
     Route::get('/invite-request', [InviteRequestController::class, 'create']);
     Route::post('/invite-request', [InviteRequestController::class, 'store'])->middleware('throttle:magic-link');
     Route::view('/invite-request/sent', 'auth.invite-request-sent');
-    Route::get('/login/{token}', [MagicLinkController::class, 'show'])->middleware('throttle:20,1');
-    Route::post('/login/{token}', [MagicLinkController::class, 'consume'])->middleware('throttle:20,1');
+    Route::get('/login/{token}', [MagicLinkController::class, 'show'])->middleware('throttle:token');
+    Route::post('/login/{token}', [MagicLinkController::class, 'consume'])->middleware('throttle:token');
 });
 
 // Outside the guest group: someone already signed in may still open an invite.
-Route::get('/invite/{token}', [InviteRequestController::class, 'showInvite'])->middleware('throttle:20,1');
-Route::post('/invite/{token}', [InviteRequestController::class, 'redeem'])->middleware('throttle:20,1');
+Route::get('/invite/{token}', [InviteRequestController::class, 'showInvite'])->middleware('throttle:token');
+Route::post('/invite/{token}', [InviteRequestController::class, 'redeem'])->middleware('throttle:token');
 
 Route::middleware('auth')->group(function () {
     Route::view('/display-name', 'auth.display-name');
@@ -86,9 +86,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'suggest'])->whereUuid('id');
         Route::delete('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'withdraw'])->whereUuid('id');
 
-        Route::post('/manicures/{id}/heart', [HeartController::class, 'store'])->whereUuid('id')->middleware('throttle:60,1');
-        Route::delete('/manicures/{id}/heart', [HeartController::class, 'destroy'])->whereUuid('id')->middleware('throttle:60,1');
-        Route::post('/manicures/{id}/report', [ReportController::class, 'store'])->whereUuid('id')->middleware('throttle:10,1');
+        Route::post('/manicures/{id}/heart', [HeartController::class, 'store'])->whereUuid('id')->middleware('throttle:heart');
+        Route::delete('/manicures/{id}/heart', [HeartController::class, 'destroy'])->whereUuid('id')->middleware('throttle:heart');
+        Route::post('/manicures/{id}/report', [ReportController::class, 'store'])->whereUuid('id')->middleware('throttle:report');
         Route::get('/liked', [LikedController::class, 'index']);
 
         Route::get('/manicures', [ManicureController::class, 'index']);

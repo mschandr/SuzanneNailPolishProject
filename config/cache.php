@@ -131,6 +131,21 @@ return [
     |
     */
 
-    'serializable_classes' => false,
+    // The catalog pages cache Eloquent models, collections and a paginator (see App\Support\CatalogCache). Laravel
+    // refuses to un-serialize any class not listed here, so each class that appears in a cached value must be named.
+    // Without this the first view of a catalog page works and every later one fails with a 500.
+    'serializable_classes' => [
+        \App\Models\Brand::class,
+        \App\Models\Polish::class,
+        \App\Models\ColorFamily::class,
+        \App\Models\Finish::class,
+        \Illuminate\Database\Eloquent\Collection::class,
+        \Illuminate\Database\Eloquent\Relations\Pivot::class,
+        \Illuminate\Support\Collection::class,
+        \Illuminate\Pagination\LengthAwarePaginator::class,
+        \Illuminate\Support\Carbon::class,
+        \Carbon\Carbon::class,
+        \Carbon\CarbonImmutable::class,
+    ],
 
 ];

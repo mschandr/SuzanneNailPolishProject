@@ -13,7 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/login');
-        $middleware->web(append: [\App\Http\Middleware\EnsureNotSuspended::class]);
+        $middleware->web(
+            prepend: [\App\Http\Middleware\NoCookiesOnPublicPhotos::class],
+            append: [\App\Http\Middleware\EnsureNotSuspended::class],
+        );
         $middleware->alias([
             'display-name' => \App\Http\Middleware\EnsureDisplayName::class,
             'admin' => \App\Http\Middleware\EnsureAdmin::class,

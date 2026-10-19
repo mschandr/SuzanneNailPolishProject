@@ -85,4 +85,22 @@ class MagicLinkSigninTest extends TestCase
 
         $this->assertGuest();
     }
+
+    public function test_an_existing_user_signs_in_without_waiting_for_the_signup_lock(): void
+    {
+        $user = User::factory()->create(['email' => 'suzanne@example.com']);
+        $url = $this->requestLink('suzanne@example.com');
+
+        // Someone else is in the middle of creating an account, holding the lock that counts the first 100 signups.
+        $held = \Illuminate\Support\Facades\Cache::lock('self-signup', 30);
+        $this->assertTrue($held->get());
+
+        $started = microtime(true);
+        $this->post($url)->assertRedirect();
+        $held->release();
+
+        $this->assertAuthenticated();
+        $this->assertSame($user->id, auth()->id());
+        $this->assertLessThan(2.0, microtime(true) - $started, 'an existing user must not queue behind account creation');
+    }
 }
