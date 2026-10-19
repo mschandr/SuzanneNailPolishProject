@@ -5,8 +5,8 @@
 @section('content')
     <p><a href="/catalog/{{ $polish->brand->slug }}">{{ $polish->brand->name }}</a></p>
     <h1>{{ $polish->name }}</h1>
-    @if ($polish->swatch_path)
-        <img src="{{ Storage::disk('public')->url($polish->swatch_path) }}" alt="{{ $polish->name }}" style="max-width:100%;width:24rem">
+    @if ($src = $polish->swatchSrc())
+        <img src="{{ $src }}" alt="{{ $polish->name }}" referrerpolicy="no-referrer" style="max-width:100%;width:24rem">
     @endif
     <dl>
         <dt>Brand</dt><dd>{{ $polish->brand->name }}</dd>

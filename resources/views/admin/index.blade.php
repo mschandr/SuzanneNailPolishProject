@@ -4,6 +4,8 @@
     <h1>Admin</h1>
     <ul>
         <li><a href="/admin/polishes/create">Add a polish</a></li>
+        <li><a href="/admin/imports">Import polishes</a></li>
+        <li><a href="/admin/needs-review">Needs review</a>@if ($needsReview > 0) — {{ $needsReview }} {{ $needsReview === 1 ? 'polish needs' : 'polishes need' }} review @endif</li>
         <li><a href="/admin/moderation">Moderation</a></li>
         <li><a href="/admin/suggestions">Suggested polishes</a></li>
         <li><a href="/admin/invites">Invite requests</a></li>

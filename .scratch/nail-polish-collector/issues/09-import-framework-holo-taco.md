@@ -1,13 +1,16 @@
-# 09: Import framework and Holo Taco adapter
+# 09: Import framework (file-based)
 
-**What to build:** Having checked the site's terms and robots.txt, the Admin picks a Vendor in the admin panel and runs a queued Import. It adds only new Polishes (matched by Vendor + shade name) with local image copies and the source URL, rate-limited, leaving existing records and manual edits untouched, and shows a summary.
+**What to build:** The Admin adds many Polishes to the Catalog from a CSV file, with a preview and a checklist before anything is added. Nothing is scraped from any Vendor's site.
 
-**Blocked by:** 05
+**Redesigned:** this ticket began as "pull polishes from Holo Taco". Holo Taco's terms forbid it, and ILNP's and Mooncat's do too (see `.scratch/vendor-terms/`), so the Import takes a file the Admin supplies instead.
 
-**Status:** ready-for-agent
+**Blocked by:** None.
 
-- [ ] Terms and robots.txt check documented before the adapter is written
-- [ ] Import runs as a queued job from the admin panel
-- [ ] Re-running adds only new Polishes
-- [ ] Manual edits survive a re-import
-- [ ] Summary lists what was added
+**Status:** done
+
+- [x] Upload a CSV (template provided); columns brand, shade (required), collection, color_family, finishes, vendor_url, image_url
+- [x] Preview with counts and a checklist: new rows ticked, existing / duplicate / invalid rows explained and not selectable
+- [x] Only ticked new rows are added; existing polishes and the Admin's edits are never touched; re-importing is safe
+- [x] Rows missing a colour family or finish are added and flagged "needs review", with an Admin list that clears on save
+- [x] Image links are stored as links, never copied; only https links are shown
+- [x] Audit-logged, cache refreshed, unapplied previews expire after 7 days

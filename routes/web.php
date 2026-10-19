@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminHomeController;
+use App\Http\Controllers\Admin\ImportController;
+use App\Http\Controllers\Admin\NeedsReviewController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\PolishController as AdminPolishController;
@@ -122,11 +125,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/polishes/{polish}/bottles', [BottleController::class, 'store'])->whereUuid('polish');
 
         Route::middleware('admin')->prefix('admin')->group(function () {
-            Route::view('/', 'admin.index');
+            Route::get('/', AdminHomeController::class);
             Route::get('/polishes/create', [AdminPolishController::class, 'create']);
             Route::post('/polishes', [AdminPolishController::class, 'store']);
             Route::get('/polishes/{id}/edit', [AdminPolishController::class, 'edit'])->whereUuid('id');
             Route::put('/polishes/{id}', [AdminPolishController::class, 'update'])->whereUuid('id');
+            Route::get('/imports', [ImportController::class, 'index']);
+            Route::get('/imports/template.csv', [ImportController::class, 'template']);
+            Route::post('/imports', [ImportController::class, 'store']);
+            Route::get('/imports/{id}', [ImportController::class, 'show'])->whereUuid('id');
+            Route::post('/imports/{id}/apply', [ImportController::class, 'apply'])->whereUuid('id');
+            Route::get('/needs-review', [NeedsReviewController::class, 'index']);
             Route::get('/moderation', [ModerationController::class, 'index']);
             Route::get('/moderation/log', [ModerationController::class, 'log']);
             Route::post('/reports/{id}/dismiss', [ModerationController::class, 'dismiss'])->whereUuid('id');

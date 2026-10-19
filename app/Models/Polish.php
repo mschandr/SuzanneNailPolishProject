@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Polish extends Model
@@ -25,6 +26,16 @@ class Polish extends Model
     protected function casts(): array
     {
         return ['promotion_requested_at' => 'datetime'];
+    }
+
+    /** The picture to show: an uploaded swatch if there is one, else an https link from an import. */
+    public function swatchSrc(): ?string
+    {
+        if ($this->swatch_path) {
+            return Storage::disk(self::SWATCH_DISK)->url($this->swatch_path);
+        }
+
+        return $this->swatch_url && str_starts_with($this->swatch_url, 'https://') ? $this->swatch_url : null;
     }
 
     public function isPrivate(): bool

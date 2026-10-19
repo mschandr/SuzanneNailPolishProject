@@ -21,8 +21,8 @@
                     <label style="display:block"><input type="checkbox" name="polish_ids[]" value="{{ $polish->id }}" form="bulk" @checked(in_array($polish->id, old('polish_ids', [])))> Select</label>
                 @endif
                 <a href="{{ $polish->url() }}">
-                    @if ($polish->swatch_path)
-                        <img src="{{ Storage::disk('public')->url($polish->swatch_path) }}" alt="{{ $polish->name }}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover">
+                    @if ($src = $polish->swatchSrc())
+                        <img src="{{ $src }}" alt="{{ $polish->name }}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;aspect-ratio:1;object-fit:cover">
                     @endif
                     <div>{{ $polish->name }}</div>
                     @if ($ownedIds->has($polish->id))<div data-owned><strong>✓ Owned</strong></div>@endif

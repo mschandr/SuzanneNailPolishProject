@@ -18,6 +18,8 @@ class SchemaCascadeTest extends TestCase
     private const EXCEPTIONS = [
         // The audit log must outlive the Admin who acted; the column is simply emptied.
         'moderation_log.admin_id' => 'SET NULL',
+        // An import's history (what was added, when) is about the Catalog, not the Admin personally; it is kept.
+        'imports.admin_id' => 'SET NULL',
     ];
 
     /** @return array<int, array{table: string, column: string, on_delete: string}> */
