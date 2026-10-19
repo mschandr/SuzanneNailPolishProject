@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Manicure;
+use App\Models\ManicurePolish;
 use App\Models\Polish;
 use App\Support\CatalogCache;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -44,7 +45,7 @@ class PolishController extends Controller
         // A private Polish has no public Manicures to show.
         $wornBy = $polish->isPrivate() ? collect() : Manicure::query()
             ->publiclyVisible()
-            ->whereHas('layers', fn ($l) => $l->where('polish_id', $polish->id))
+            ->whereHas('layers', fn ($l) => ManicurePolish::onlyActive($l)->where('polish_id', $polish->id))
             ->with(['photos', 'user'])->withCount('hearts')
             ->orderByDesc('manicures.worn_on')->orderByDesc('manicures.created_at')->orderBy('manicures.id')
             ->limit(12)->get();

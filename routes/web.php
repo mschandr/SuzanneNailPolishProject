@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/manicures/{id}', [ManicureController::class, 'destroy'])->whereUuid('id');
         Route::get('/manicures/{id}/polishes', [ManicureLayerController::class, 'index'])->whereUuid('id');
         Route::post('/manicures/{id}/polishes', [ManicureLayerController::class, 'store'])->whereUuid('id');
+        Route::put('/manicures/{id}/polish-mode', [ManicureLayerController::class, 'setMode'])->whereUuid('id');
+        Route::post('/manicures/{id}/polishes/copy-to-nails', [ManicureLayerController::class, 'copyToNails'])->whereUuid('id');
         Route::put('/manicure-polishes/{id}', [ManicureLayerController::class, 'update'])->whereUuid('id');
         Route::post('/manicure-polishes/{id}/move', [ManicureLayerController::class, 'move'])->whereUuid('id');
         Route::delete('/manicure-polishes/{id}', [ManicureLayerController::class, 'destroy'])->whereUuid('id');

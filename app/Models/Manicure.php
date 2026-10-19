@@ -17,6 +17,18 @@ class Manicure extends Model
 
     public const MAX_PHOTOS = 4;
 
+    public const MODE_HAND = 'hand';
+
+    public const MODE_NAILS = 'nails';
+
+    /** Nail key => label, in display order (left hand then right, thumb to pinky). */
+    public const NAILS = [
+        'left_thumb' => 'Left thumb', 'left_index' => 'Left index', 'left_middle' => 'Left middle',
+        'left_ring' => 'Left ring', 'left_pinky' => 'Left pinky',
+        'right_thumb' => 'Right thumb', 'right_index' => 'Right index', 'right_middle' => 'Right middle',
+        'right_ring' => 'Right ring', 'right_pinky' => 'Right pinky',
+    ];
+
     // user_id is set by the app. Visibility is validated in the controller.
     protected $fillable = ['worn_on', 'caption', 'visibility'];
 
@@ -44,6 +56,19 @@ class Manicure extends Model
     public function hearts(): HasMany
     {
         return $this->hasMany(Heart::class);
+    }
+
+    /**
+     * The layers that count right now: the whole-hand list in whole-hand mode, the nail lists in per-nail mode.
+     * The other mode's list is kept but dormant, so switching modes never loses anything.
+     *
+     * @return \Illuminate\Support\Collection<int, ManicurePolish>
+     */
+    public function activeLayers()
+    {
+        $nails = $this->polish_mode === self::MODE_NAILS;
+
+        return $this->layers->filter(fn ($layer) => ($layer->target === ManicurePolish::HAND) !== $nails)->values();
     }
 
     /** The ordered Polishes worn, base to top. */

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ColorFamily;
 use App\Models\Finish;
 use App\Models\Manicure;
+use App\Models\ManicurePolish;
 use App\Support\Like;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -35,7 +36,7 @@ class GalleryController extends Controller
         // Brand, shade, finish and colour all describe one Polish worn in the Manicure, so they must all
         // match the same layer. Only public Polishes are searchable: a private shade never makes a Manicure findable.
         if ($filters['brand'] !== '' || $filters['polish'] !== '' || $filters['finish_id'] !== '' || $filters['color_family_id'] !== '' || $filters['polish_id'] !== '') {
-            $query->whereHas('layers', fn ($layer) => $layer->whereHas('polish', function ($polish) use ($filters) {
+            $query->whereHas('layers', fn ($layer) => ManicurePolish::onlyActive($layer)->whereHas('polish', function ($polish) use ($filters) {
                 $polish->whereNull('polishes.user_id');
 
                 if ($filters['polish'] !== '') {

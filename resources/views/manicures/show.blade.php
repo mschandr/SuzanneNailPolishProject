@@ -68,23 +68,21 @@
     @endauth
 
     <h2>Polishes worn</h2>
-    @if ($manicure->layers->isNotEmpty())
-        <ol>
-            @foreach ($manicure->layers as $layer)
-                @php($polish = $layer->polish)
-                <li>
-                    {{-- A private polish keeps its page private: strangers see its name but no link. --}}
-                    @if (! $polish->isPrivate() || $isOwner)
-                        <a href="{{ $polish->url() }}"><strong>{{ $polish->brand->name }}</strong> {{ $polish->name }}</a>
-                    @else
-                        <strong>{{ $polish->brand->name }}</strong> {{ $polish->name }}
-                    @endif
-                    @if ($isOwner && $layer->bottle_id)<small>(from my collection)</small>@endif
-                </li>
+    @php($active = $manicure->activeLayers())
+    @if ($active->isNotEmpty())
+        @if ($manicure->polish_mode === \App\Models\Manicure::MODE_NAILS)
+            @foreach (\App\Models\Manicure::NAILS as $key => $label)
+                @php($onNail = $active->where('target', $key))
+                @if ($onNail->isNotEmpty())
+                    <h3>{{ $label }}</h3>
+                    <ol>@foreach ($onNail as $layer)<li>@include('manicures._layer', ['layer' => $layer])</li>@endforeach</ol>
+                @endif
             @endforeach
-        </ol>
+        @else
+            <ol>@foreach ($active as $layer)<li>@include('manicures._layer', ['layer' => $layer])</li>@endforeach</ol>
+        @endif
     @elseif ($isOwner)
         <p>Add the polishes you wore so others can see what it looks like.</p>
     @endif
-    @if ($isOwner)<p><a href="/manicures/{{ $manicure->id }}/polishes">{{ $manicure->layers->isEmpty() ? 'Add polishes' : 'Edit polishes' }}</a> · <a href="/manicures/{{ $manicure->id }}/edit">Edit</a></p>@endif
+    @if ($isOwner)<p><a href="/manicures/{{ $manicure->id }}/polishes">{{ $active->isEmpty() ? 'Add polishes' : 'Edit polishes' }}</a> · <a href="/manicures/{{ $manicure->id }}/edit">Edit</a></p>@endif
 @endsection
