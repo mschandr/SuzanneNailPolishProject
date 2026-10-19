@@ -71,4 +71,15 @@ class User extends Authenticatable
             return $find();
         }
     }
+
+    public function manicures(): HasMany
+    {
+        return $this->hasMany(Manicure::class);
+    }
+
+    /** Photos across all of this User's Manicures (for the per-User cap). */
+    public function photoCount(): int
+    {
+        return ManicurePhoto::whereIn('manicure_id', $this->manicures()->select('id'))->count();
+    }
 }

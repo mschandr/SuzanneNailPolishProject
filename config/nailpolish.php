@@ -6,4 +6,10 @@ return [
 
     // Number of accounts that may self-signup before it closes to invite-only.
     'self_signup_limit' => (int) env('SELF_SIGNUP_LIMIT', 100),
+
+    // Which filesystem disk holds Manicure photos (see config/filesystems.php).
+    'photos_disk' => env('PHOTOS_DISK', 'photos'),
+
+    // Soft cap on photos per User, so storage costs stay predictable.
+    'max_photos_per_user' => (int) env('MAX_PHOTOS_PER_USER', 500),
 ];

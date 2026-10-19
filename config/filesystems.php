@@ -38,6 +38,17 @@ return [
             'report' => false,
         ],
 
+        // Manicure photos. Private on purpose: they are served only through an authorized route, so a
+        // private Manicure's photo can't be fetched by anyone who merely learns its path. Point
+        // PHOTOS_DISK at an S3-compatible disk (e.g. DigitalOcean Spaces) in production.
+        'photos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/photos'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

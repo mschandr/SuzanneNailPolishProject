@@ -16,13 +16,20 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InviteRequestController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\ManicureController;
+use App\Http\Controllers\ManicurePhotoController;
+use App\Http\Controllers\ManicureSettingsController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PolishController;
 use App\Http\Controllers\PrivatePolishController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 Route::get('/health', HealthController::class);
+
+// Public routes whose access is decided per Manicure (private ones answer 404).
+Route::get('/photos/{id}/{variant}', [ManicurePhotoController::class, 'show'])->whereUuid('id');
 
 Route::get('/catalog', [CatalogController::class, 'index']);
 Route::get('/catalog/{slug}', [CatalogController::class, 'brand']);
@@ -67,6 +74,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'suggest'])->whereUuid('id');
         Route::delete('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'withdraw'])->whereUuid('id');
 
+        Route::get('/manicures', [ManicureController::class, 'index']);
+        Route::get('/manicures/create', [ManicureController::class, 'create']);
+        Route::post('/manicures', [ManicureController::class, 'store']);
+        Route::get('/manicures/{id}/edit', [ManicureController::class, 'edit'])->whereUuid('id');
+        Route::put('/manicures/{id}', [ManicureController::class, 'update'])->whereUuid('id');
+        Route::delete('/manicures/{id}', [ManicureController::class, 'destroy'])->whereUuid('id');
+        Route::post('/manicure-photos/{id}/rotate', [ManicurePhotoController::class, 'rotate'])->whereUuid('id');
+        Route::delete('/manicure-photos/{id}', [ManicurePhotoController::class, 'destroy'])->whereUuid('id');
+
+        Route::get('/settings/manicures', [ManicureSettingsController::class, 'edit']);
+        Route::put('/settings/manicures', [ManicureSettingsController::class, 'update']);
+
         Route::get('/locations', [LocationController::class, 'index']);
         Route::post('/locations', [LocationController::class, 'store']);
         Route::put('/locations/{id}', [LocationController::class, 'update'])->whereUuid('id');
@@ -101,6 +120,9 @@ Route::middleware('auth')->group(function () {
         });
     });
 });
+
+Route::get('/manicures/{id}', [ManicureController::class, 'show'])->whereUuid('id');
+Route::get('/people/{id}', [PersonController::class, 'show'])->whereUuid('id');
 
 // Keep last: a catch-all for /<brand>/<uuid>/<color-name>, so it can never shadow another route.
 Route::get('/{brand}/{id}/{slug}', [PolishController::class, 'show'])->whereUuid('id');
