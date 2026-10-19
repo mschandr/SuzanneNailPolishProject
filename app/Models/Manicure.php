@@ -35,6 +35,12 @@ class Manicure extends Model
         return $this->hasMany(ManicurePhoto::class)->orderBy('position');
     }
 
+    /** The ordered Polishes worn, base to top. */
+    public function layers(): HasMany
+    {
+        return $this->hasMany(ManicurePolish::class)->orderBy('position');
+    }
+
     /** What anyone but the owner can see: its own setting, else the owner's current account default. */
     public function effectiveVisibility(): string
     {

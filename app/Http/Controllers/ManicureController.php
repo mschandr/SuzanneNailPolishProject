@@ -42,7 +42,7 @@ class ManicureController extends Controller
 
     public function show(Request $request, string $id)
     {
-        $manicure = Manicure::with(['photos', 'user'])->findOrFail($id);
+        $manicure = Manicure::with(['photos', 'user', 'layers.polish.brand'])->findOrFail($id);
 
         // A private Manicure answers exactly like one that does not exist.
         abort_unless($manicure->visibleTo($request->user()), 404);

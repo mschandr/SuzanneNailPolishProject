@@ -17,6 +17,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InviteRequestController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ManicureController;
+use App\Http\Controllers\ManicureLayerController;
 use App\Http\Controllers\ManicurePhotoController;
 use App\Http\Controllers\ManicureSettingsController;
 use App\Http\Controllers\OnboardingController;
@@ -80,6 +81,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/manicures/{id}/edit', [ManicureController::class, 'edit'])->whereUuid('id');
         Route::put('/manicures/{id}', [ManicureController::class, 'update'])->whereUuid('id');
         Route::delete('/manicures/{id}', [ManicureController::class, 'destroy'])->whereUuid('id');
+        Route::get('/manicures/{id}/polishes', [ManicureLayerController::class, 'index'])->whereUuid('id');
+        Route::post('/manicures/{id}/polishes', [ManicureLayerController::class, 'store'])->whereUuid('id');
+        Route::put('/manicure-polishes/{id}', [ManicureLayerController::class, 'update'])->whereUuid('id');
+        Route::post('/manicure-polishes/{id}/move', [ManicureLayerController::class, 'move'])->whereUuid('id');
+        Route::delete('/manicure-polishes/{id}', [ManicureLayerController::class, 'destroy'])->whereUuid('id');
         Route::post('/manicure-photos/{id}/rotate', [ManicurePhotoController::class, 'rotate'])->whereUuid('id');
         Route::delete('/manicure-photos/{id}', [ManicurePhotoController::class, 'destroy'])->whereUuid('id');
 

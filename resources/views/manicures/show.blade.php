@@ -13,5 +13,24 @@
             <img src="/photos/{{ $photo->id }}/full?v={{ $photo->updated_at->timestamp }}" alt="Manicure photo {{ $loop->iteration }}" style="width:100%;height:auto">
         @endforeach
     </div>
-    @if ($isOwner)<p><a href="/manicures/{{ $manicure->id }}/edit">Edit</a></p>@endif
+    <h2>Polishes worn</h2>
+    @if ($manicure->layers->isNotEmpty())
+        <ol>
+            @foreach ($manicure->layers as $layer)
+                @php($polish = $layer->polish)
+                <li>
+                    {{-- A private polish keeps its page private: strangers see its name but no link. --}}
+                    @if (! $polish->isPrivate() || $isOwner)
+                        <a href="{{ $polish->url() }}"><strong>{{ $polish->brand->name }}</strong> {{ $polish->name }}</a>
+                    @else
+                        <strong>{{ $polish->brand->name }}</strong> {{ $polish->name }}
+                    @endif
+                    @if ($isOwner && $layer->bottle_id)<small>(from my collection)</small>@endif
+                </li>
+            @endforeach
+        </ol>
+    @elseif ($isOwner)
+        <p>Add the polishes you wore so others can see what it looks like.</p>
+    @endif
+    @if ($isOwner)<p><a href="/manicures/{{ $manicure->id }}/polishes">{{ $manicure->layers->isEmpty() ? 'Add polishes' : 'Edit polishes' }}</a> · <a href="/manicures/{{ $manicure->id }}/edit">Edit</a></p>@endif
 @endsection
