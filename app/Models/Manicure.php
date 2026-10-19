@@ -35,6 +35,12 @@ class Manicure extends Model
         return $this->hasMany(ManicurePhoto::class)->orderBy('position');
     }
 
+    /** Users who hearted this Manicure. */
+    public function hearts(): HasMany
+    {
+        return $this->hasMany(Heart::class);
+    }
+
     /** The ordered Polishes worn, base to top. */
     public function layers(): HasMany
     {

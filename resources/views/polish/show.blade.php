@@ -19,6 +19,14 @@
     @if ($polish->vendor_url)
         <p><a href="{{ $polish->vendor_url }}" rel="noopener nofollow">Buy from the vendor</a></p>
     @endif
+    @if ($wornBy->isNotEmpty())
+        <section>
+            <h2>Worn by others</h2>
+            @include('gallery._tiles', ['manicures' => $wornBy])
+            <p><a href="/gallery?polish_id={{ $polish->id }}">See all in the Gallery</a></p>
+        </section>
+    @endif
+
     <section>
         @if ($bottles === null)
             <p><a href="/login">Sign in</a> to track whether you own this.</p>

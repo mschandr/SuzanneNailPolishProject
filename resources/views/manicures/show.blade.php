@@ -13,6 +13,22 @@
             <img src="/photos/{{ $photo->id }}/full?v={{ $photo->updated_at->timestamp }}" alt="Manicure photo {{ $loop->iteration }}" style="width:100%;height:auto">
         @endforeach
     </div>
+    <p>
+        {{ $heartCount }} {{ Str::plural('heart', $heartCount) }}
+        @auth
+            @unless ($isOwner)
+                @if ($hearted)
+                    <form method="post" action="/manicures/{{ $manicure->id }}/heart" style="display:inline">@csrf @method('delete')<button>Remove heart</button></form>
+                @else
+                    <form method="post" action="/manicures/{{ $manicure->id }}/heart" style="display:inline">@csrf<button>Heart this</button></form>
+                @endif
+            @endunless
+        @else
+            · <a href="/login">Sign in to heart</a>
+        @endauth
+    </p>
+    @error('heart')<p role="alert">{{ $message }}</p>@enderror
+
     <h2>Polishes worn</h2>
     @if ($manicure->layers->isNotEmpty())
         <ol>

@@ -12,9 +12,12 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\HeartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InviteRequestController;
+use App\Http\Controllers\LikedController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ManicureController;
 use App\Http\Controllers\ManicureLayerController;
@@ -75,6 +78,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'suggest'])->whereUuid('id');
         Route::delete('/my-polishes/{id}/suggest', [PrivatePolishController::class, 'withdraw'])->whereUuid('id');
 
+        Route::post('/manicures/{id}/heart', [HeartController::class, 'store'])->whereUuid('id')->middleware('throttle:60,1');
+        Route::delete('/manicures/{id}/heart', [HeartController::class, 'destroy'])->whereUuid('id')->middleware('throttle:60,1');
+        Route::get('/liked', [LikedController::class, 'index']);
+
         Route::get('/manicures', [ManicureController::class, 'index']);
         Route::get('/manicures/create', [ManicureController::class, 'create']);
         Route::post('/manicures', [ManicureController::class, 'store']);
@@ -128,6 +135,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/manicures/{id}', [ManicureController::class, 'show'])->whereUuid('id');
+Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/people/{id}', [PersonController::class, 'show'])->whereUuid('id');
 
 // Keep last: a catch-all for /<brand>/<uuid>/<color-name>, so it can never shadow another route.

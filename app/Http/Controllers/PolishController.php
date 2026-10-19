@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Manicure;
 use App\Models\Polish;
 use App\Support\CatalogCache;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -39,6 +40,15 @@ class PolishController extends Controller
         $bottles = $user?->bottles()->where('polish_id', $polish->id)->get();
         $locations = $user?->locations()->orderBy('name_key')->get();
 
-        return view('polish.show', ['polish' => $polish, 'bottles' => $bottles, 'locations' => $locations]);
+        // Public Manicures that list this Polish. Read per request (never cached) so privacy changes show at once.
+        // A private Polish has no public Manicures to show.
+        $wornBy = $polish->isPrivate() ? collect() : Manicure::query()
+            ->publiclyVisible()
+            ->whereHas('layers', fn ($l) => $l->where('polish_id', $polish->id))
+            ->with(['photos', 'user'])->withCount('hearts')
+            ->orderByDesc('manicures.worn_on')->orderByDesc('manicures.created_at')->orderBy('manicures.id')
+            ->limit(12)->get();
+
+        return view('polish.show', ['polish' => $polish, 'bottles' => $bottles, 'locations' => $locations, 'wornBy' => $wornBy]);
     }
 }

@@ -82,4 +82,9 @@ class User extends Authenticatable
     {
         return ManicurePhoto::whereIn('manicure_id', $this->manicures()->select('id'))->count();
     }
+
+    public function hearts(): HasMany
+    {
+        return $this->hasMany(Heart::class);
+    }
 }

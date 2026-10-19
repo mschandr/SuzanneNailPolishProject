@@ -42,14 +42,21 @@ class ManicureController extends Controller
 
     public function show(Request $request, string $id)
     {
-        $manicure = Manicure::with(['photos', 'user', 'layers.polish.brand'])->findOrFail($id);
+        $viewer = $request->user();
+
+        $manicure = Manicure::with(['photos', 'user', 'layers.polish.brand'])
+            ->withCount('hearts')
+            ->when($viewer, fn ($q) => $q->withExists(['hearts as hearted' => fn ($h) => $h->where('user_id', $viewer->id)]))
+            ->findOrFail($id);
 
         // A private Manicure answers exactly like one that does not exist.
         abort_unless($manicure->visibleTo($request->user()), 404);
 
         return view('manicures.show', [
             'manicure' => $manicure,
-            'isOwner' => $request->user()?->id === $manicure->user_id,
+            'isOwner' => $viewer?->id === $manicure->user_id,
+            'heartCount' => $manicure->hearts_count,
+            'hearted' => (bool) ($manicure->hearted ?? false),
         ]);
     }
 
