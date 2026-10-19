@@ -35,6 +35,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'is_admin' => 'boolean',
+            'onboarding_completed_at' => 'datetime',
         ];
     }
 

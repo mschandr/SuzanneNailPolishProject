@@ -22,8 +22,14 @@ class UserFactory extends Factory
             'display_name' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
+            'onboarding_completed_at' => now(),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function notOnboarded(): static
+    {
+        return $this->state(fn () => ['onboarding_completed_at' => null]);
     }
 
     public function admin(): static

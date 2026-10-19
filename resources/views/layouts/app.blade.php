@@ -19,6 +19,7 @@
                 @if (filled(auth()->user()->display_name))
                     <a href="/collection" style="color:#fff">My collection</a>
                     <a href="/my-polishes" style="color:#fff">My private polishes</a>
+                    <a href="/help" style="color:#fff">Help</a>
                     @if (auth()->user()->is_admin)<a href="/admin" style="color:#fff">Admin</a>@endif
                 @endif
                 <form method="post" action="/logout" style="display:inline">@csrf<button>Sign out</button></form>

@@ -13,8 +13,10 @@ use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InviteRequestController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PolishController;
 use App\Http\Controllers\PrivatePolishController;
 use Illuminate\Support\Facades\Route;
@@ -48,7 +50,10 @@ Route::middleware('auth')->group(function () {
     // Every other signed-in page must live in this group so the display-name
     // requirement cannot be bypassed.
     Route::middleware('display-name')->group(function () {
-        Route::view('/home', 'home');
+        Route::get('/home', HomeController::class);
+        Route::get('/welcome', [OnboardingController::class, 'show']);
+        Route::post('/welcome/complete', [OnboardingController::class, 'complete']);
+        Route::view('/help', 'help');
 
         Route::get('/collection', [CollectionController::class, 'index']);
 
