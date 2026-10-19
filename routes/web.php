@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\ModerationController;
@@ -60,6 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::view('/display-name', 'auth.display-name');
     Route::post('/display-name', [DisplayNameController::class, 'store']);
     Route::post('/logout', LogoutController::class);
+
+    // Reachable even before a display name is chosen: anyone must be able to leave.
+    Route::get('/account/delete', [AccountController::class, 'confirmDelete']);
+    Route::post('/account/delete', [AccountController::class, 'destroy']);
 
     // Every other signed-in page must live in this group so the display-name
     // requirement cannot be bypassed.

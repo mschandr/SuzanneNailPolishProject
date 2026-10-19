@@ -13,6 +13,9 @@ class Polish extends Model
 {
     use BumpsCatalogVersion, HasUuids;
 
+    /** The filesystem disk swatch photos are stored on. */
+    public const SWATCH_DISK = 'public';
+
     // Laravel's pluralizer treats "polish" as uncountable.
     protected $table = 'polishes';
 

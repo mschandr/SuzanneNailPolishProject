@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +23,16 @@ class User extends Authenticatable
     use HasFactory, HasUuids, Notifiable;
 
     protected $attributes = ['is_admin' => false];
+
+    protected static function booted(): void
+    {
+        // Every self-signup is written to the ledger the moment the account is created (and never removed).
+        static::created(function (User $user) {
+            if ($user->signup_method === 'self') {
+                DB::table('self_signups')->insert(['created_at' => now()]);
+            }
+        });
+    }
 
     // signup_method is set by the app, never by mass assignment.
 

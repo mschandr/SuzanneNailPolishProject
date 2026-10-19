@@ -11,4 +11,5 @@
         <li><strong>Storage places:</strong> create them under <a href="/locations">Locations</a>.</li>
         <li><strong>Not in the Catalog?</strong> Add it as a <a href="/my-polishes">private polish</a>.</li>
     </ul>
+    <p><a href="/account/delete">Delete my account</a></p>
 @endsection

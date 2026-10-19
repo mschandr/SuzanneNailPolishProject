@@ -3,13 +3,15 @@
 namespace App\Support;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class SelfSignup
 {
     public static function isOpen(): bool
     {
-        return User::where('signup_method', 'self')->count() < (int) config('nailpolish.self_signup_limit');
+        // Counts self-signups ever made (the ledger), not current accounts, so deleting an account can't reopen a place.
+        return DB::table('self_signups')->count() < (int) config('nailpolish.self_signup_limit');
     }
 
     public static function isAdminEmail(string $email): bool
