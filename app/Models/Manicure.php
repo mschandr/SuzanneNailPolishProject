@@ -22,7 +22,7 @@ class Manicure extends Model
 
     protected function casts(): array
     {
-        return ['worn_on' => 'date'];
+        return ['worn_on' => 'date', 'hidden_at' => 'datetime'];
     }
 
     public function user(): BelongsTo
@@ -33,6 +33,11 @@ class Manicure extends Model
     public function photos(): HasMany
     {
         return $this->hasMany(ManicurePhoto::class)->orderBy('position');
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(Report::class);
     }
 
     /** Users who hearted this Manicure. */
@@ -53,25 +58,58 @@ class Manicure extends Model
         return $this->visibility ?? $this->user->manicure_default_visibility;
     }
 
+    /** Publicly visible right now: set to public, not hidden by the Admin, and the owner is not suspended. */
     public function isPublic(): bool
     {
-        return $this->effectiveVisibility() === self::PUBLIC;
+        return $this->hidden_at === null
+            && ! $this->user->isSuspended()
+            && $this->effectiveVisibility() === self::PUBLIC;
     }
 
+    /**
+     * The Admin may review and act on a Manicure only while it has an open report or is hidden. Once a report
+     * is dismissed the Manicure goes back to being the owner's alone: a past report is not standing access.
+     */
+    public function isModeratable(): bool
+    {
+        return $this->hidden_at !== null || $this->reports()->where('status', 'open')->exists();
+    }
+
+    /** Owners can't change a hidden Manicure (the Admin reviewed the content as it was); they can still delete it. */
+    public function abortIfLockedForEditing(): void
+    {
+        abort_if($this->hidden_at !== null, 403, 'This manicure was hidden by a moderator, so it can no longer be edited. You can still delete it.');
+    }
+
+    /**
+     * The owner always sees their own. Everyone else sees it only while it is public. The Admin additionally
+     * sees one with an open report or that is hidden (to review it), but never other people's private Manicures.
+     */
     public function visibleTo(?User $viewer): bool
     {
-        return $this->isPublic() || ($viewer !== null && $viewer->id === $this->user_id);
+        if ($viewer !== null && $viewer->id === $this->user_id) {
+            return true;
+        }
+
+        if ($viewer?->is_admin && $this->isModeratable()) {
+            return true;
+        }
+
+        return $this->isPublic();
     }
 
-    /** Public means: set to public, or unset while the owner's default is public. */
+    /** Public means: set to public (or following a public default), not hidden, and the owner not suspended. */
     public function scopePubliclyVisible($query)
     {
-        return $query->where(function ($q) {
-            $q->where('manicures.visibility', self::PUBLIC)
-                ->orWhere(function ($q) {
-                    $q->whereNull('manicures.visibility')
-                        ->whereIn('manicures.user_id', User::select('id')->where('manicure_default_visibility', self::PUBLIC));
-                });
-        });
+        return $query
+            ->whereNull('manicures.hidden_at')
+            ->whereIn('manicures.user_id', User::select('id')->whereNull('suspended_at'))
+            ->where(function ($q) {
+                $q->where('manicures.visibility', self::PUBLIC)
+                    ->orWhere(function ($q) {
+                        $q->whereNull('manicures.visibility')
+                            ->whereIn('manicures.user_id', User::select('id')->where('manicure_default_visibility', self::PUBLIC));
+                    });
+            });
     }
 }

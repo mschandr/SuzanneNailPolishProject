@@ -188,12 +188,18 @@ class ManicureLayerController extends Controller
 
     private function manicure(Request $request, string $id): Manicure
     {
-        return $request->user()->manicures()->findOrFail($id);
+        $manicure = $request->user()->manicures()->findOrFail($id);
+        $manicure->abortIfLockedForEditing();
+
+        return $manicure;
     }
 
     private function layer(Request $request, string $id): ManicurePolish
     {
-        return ManicurePolish::whereHas('manicure', fn ($q) => $q->where('user_id', $request->user()->id))
-            ->with('polish')->findOrFail($id);
+        $layer = ManicurePolish::whereHas('manicure', fn ($q) => $q->where('user_id', $request->user()->id))
+            ->with(['polish', 'manicure'])->findOrFail($id);
+        $layer->manicure->abortIfLockedForEditing();
+
+        return $layer;
     }
 }

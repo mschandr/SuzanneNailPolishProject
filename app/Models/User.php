@@ -36,6 +36,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'is_admin' => 'boolean',
             'onboarding_completed_at' => 'datetime',
+            'suspended_at' => 'datetime',
         ];
     }
 
@@ -86,5 +87,10 @@ class User extends Authenticatable
     public function hearts(): HasMany
     {
         return $this->hasMany(Heart::class);
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->suspended_at !== null;
     }
 }

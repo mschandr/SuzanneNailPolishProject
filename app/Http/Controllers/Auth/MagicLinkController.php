@@ -28,6 +28,11 @@ class MagicLinkController extends Controller
         $data = $request->validate(['email' => ['required', 'email:rfc']]);
         $email = Str::lower($data['email']);
 
+        // A suspended account gets no mail at all, with the same on-screen response as everyone else.
+        if (User::where('email', $email)->whereNotNull('suspended_at')->exists()) {
+            return redirect('/login/sent');
+        }
+
         // Same response either way, so the form can't be used to discover accounts.
         if (! SelfSignup::mayRequestLink($email)) {
             Mail::to($email)->send(new NoAccountMail(url('/invite-request')));
@@ -71,6 +76,10 @@ class MagicLinkController extends Controller
 
             $user = User::where('email', $link->email)->first();
 
+            if ($user?->isSuspended()) {
+                return 'suspended';
+            }
+
             if (! $user) {
                 $isAdmin = SelfSignup::isAdminEmail($link->email);
 
@@ -96,6 +105,10 @@ class MagicLinkController extends Controller
             }));
         } catch (LockTimeoutException) {
             return redirect('/login')->withErrors(['email' => 'We are busy right now. Please open the link again in a moment.']);
+        }
+
+        if ($user === 'suspended') {
+            return redirect('/login')->withErrors(['email' => 'This account has been suspended.']);
         }
 
         if ($user === 'closed') {

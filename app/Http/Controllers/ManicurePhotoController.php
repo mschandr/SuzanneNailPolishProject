@@ -23,8 +23,8 @@ class ManicurePhotoController extends Controller
 
         abort_unless($manicure->visibleTo($request->user()), 404);
 
-        // Public photos may be cached briefly. Private ones must never sit in any cache.
-        $cache = $manicure->isPublic() ? 'public, max-age=300' : 'private, no-store';
+        // Public photos are cached for a minute at most, so a hidden or private photo stops being served within a minute\n        // even from shared caches. Private ones must never sit in any cache.
+        $cache = $manicure->isPublic() ? 'public, max-age=60' : 'private, no-store';
 
         return $this->disk()->response($variant === 'thumb' ? $photo->thumb_path : $photo->path, null, [
             'Content-Type' => 'image/jpeg',
@@ -71,8 +71,12 @@ class ManicurePhotoController extends Controller
 
     private function mine(Request $request, string $id): ManicurePhoto
     {
-        return ManicurePhoto::whereHas('manicure', fn ($q) => $q->where('user_id', $request->user()->id))
+        $photo = ManicurePhoto::whereHas('manicure', fn ($q) => $q->where('user_id', $request->user()->id))
             ->with('manicure')->findOrFail($id);
+
+        $photo->manicure->abortIfLockedForEditing();
+
+        return $photo;
     }
 
     private function disk()

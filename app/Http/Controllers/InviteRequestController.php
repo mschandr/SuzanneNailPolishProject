@@ -61,9 +61,13 @@ class InviteRequestController extends Controller
                 return null;
             }
 
-            $invite->forceFill(['used_at' => now()])->save();
-
             $user = User::where('email', $invite->email)->first();
+
+            if ($user?->isSuspended()) {
+                return 'suspended';
+            }
+
+            $invite->forceFill(['used_at' => now()])->save();
 
             if (! $user) {
                 $user = new User(['email' => $invite->email, 'email_verified_at' => now()]);
@@ -74,6 +78,10 @@ class InviteRequestController extends Controller
             }));
         } catch (LockTimeoutException) {
             return redirect('/login')->withErrors(['email' => 'We are busy right now. Please open the link again in a moment.']);
+        }
+
+        if ($user === 'suspended') {
+            return redirect('/login')->withErrors(['email' => 'This account has been suspended.']);
         }
 
         if (! $user) {

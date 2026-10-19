@@ -154,7 +154,7 @@ class ManicureVisibilityTest extends TestCase
         $privateCache = $this->actingAs($this->owner)->get("/photos/{$private->id}/thumb")->headers->get('Cache-Control');
 
         $this->assertStringContainsString('public', $publicCache);
-        $this->assertStringContainsString('max-age=300', $publicCache);
+        $this->assertStringContainsString('max-age=60', $publicCache);
         $this->assertStringContainsString('private', $privateCache);
         $this->assertStringContainsString('no-store', $privateCache);
         $this->assertStringNotContainsString('public', $privateCache);

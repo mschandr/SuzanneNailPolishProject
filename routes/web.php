@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\InviteController;
+use App\Http\Controllers\Admin\ModerationController;
 use App\Http\Controllers\Admin\PolishController as AdminPolishController;
 use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\ValueListController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MagicLinkController;
+use App\Http\Controllers\CreditsController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HeartController;
@@ -26,6 +28,7 @@ use App\Http\Controllers\ManicureSettingsController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PolishController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PrivatePolishController;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +83,7 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/manicures/{id}/heart', [HeartController::class, 'store'])->whereUuid('id')->middleware('throttle:60,1');
         Route::delete('/manicures/{id}/heart', [HeartController::class, 'destroy'])->whereUuid('id')->middleware('throttle:60,1');
+        Route::post('/manicures/{id}/report', [ReportController::class, 'store'])->whereUuid('id')->middleware('throttle:10,1');
         Route::get('/liked', [LikedController::class, 'index']);
 
         Route::get('/manicures', [ManicureController::class, 'index']);
@@ -116,6 +120,14 @@ Route::middleware('auth')->group(function () {
             Route::post('/polishes', [AdminPolishController::class, 'store']);
             Route::get('/polishes/{id}/edit', [AdminPolishController::class, 'edit'])->whereUuid('id');
             Route::put('/polishes/{id}', [AdminPolishController::class, 'update'])->whereUuid('id');
+            Route::get('/moderation', [ModerationController::class, 'index']);
+            Route::get('/moderation/log', [ModerationController::class, 'log']);
+            Route::post('/reports/{id}/dismiss', [ModerationController::class, 'dismiss'])->whereUuid('id');
+            Route::post('/manicures/{id}/hide', [ModerationController::class, 'hide'])->whereUuid('id');
+            Route::post('/manicures/{id}/restore', [ModerationController::class, 'restore'])->whereUuid('id');
+            Route::delete('/manicures/{id}', [ModerationController::class, 'destroy'])->whereUuid('id');
+            Route::post('/users/{id}/suspend', [ModerationController::class, 'suspend'])->whereUuid('id');
+            Route::post('/users/{id}/unsuspend', [ModerationController::class, 'unsuspend'])->whereUuid('id');
             Route::get('/suggestions', [SuggestionController::class, 'index']);
             Route::post('/suggestions/{id}/promote', [SuggestionController::class, 'promote'])->whereUuid('id');
             Route::delete('/suggestions/{id}', [SuggestionController::class, 'decline'])->whereUuid('id');
@@ -136,6 +148,7 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/manicures/{id}', [ManicureController::class, 'show'])->whereUuid('id');
 Route::get('/gallery', [GalleryController::class, 'index']);
+Route::get('/credits', [CreditsController::class, 'index']);
 Route::get('/people/{id}', [PersonController::class, 'show'])->whereUuid('id');
 
 // Keep last: a catch-all for /<brand>/<uuid>/<color-name>, so it can never shadow another route.

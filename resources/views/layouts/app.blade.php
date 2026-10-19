@@ -32,5 +32,6 @@
         </nav>
     </header>
     <main>@yield('content')</main>
+    <footer style="max-width:60rem;margin:0 auto;padding:1rem"><small><a href="/credits">Photo credits</a></small></footer>
 </body>
 </html>

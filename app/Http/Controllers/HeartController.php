@@ -14,8 +14,9 @@ class HeartController extends Controller
         $manicure = Manicure::with('user')->findOrFail($id);
         $user = $request->user();
 
-        // A private Manicure answers exactly like one that does not exist.
-        abort_unless($manicure->visibleTo($user), 404);
+        // Only a Manicure the public can see can be hearted. A private or hidden one answers like a missing one,
+        // and that includes the Admin viewing it for review.
+        abort_unless($manicure->isPublic(), 404);
 
         if ($manicure->user_id === $user->id) {
             throw ValidationException::withMessages(['heart' => 'You can\'t heart your own manicure.']);

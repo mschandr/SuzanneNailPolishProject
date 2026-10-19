@@ -12,7 +12,7 @@ class PersonController extends Controller
         $person = User::findOrFail($id);
 
         // Someone who never chose a display name has nothing to show publicly.
-        abort_if(blank($person->display_name), 404);
+        abort_if(blank($person->display_name) || $person->isSuspended(), 404);
 
         $viewerIsOwner = $request->user()?->id === $person->id;
 

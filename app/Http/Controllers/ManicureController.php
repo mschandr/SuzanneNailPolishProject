@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Manicure;
+use App\Support\ManicureEraser;
 use App\Support\PhotoProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,7 +47,10 @@ class ManicureController extends Controller
 
         $manicure = Manicure::with(['photos', 'user', 'layers.polish.brand'])
             ->withCount('hearts')
-            ->when($viewer, fn ($q) => $q->withExists(['hearts as hearted' => fn ($h) => $h->where('user_id', $viewer->id)]))
+            ->when($viewer, fn ($q) => $q->withExists([
+                'hearts as hearted' => fn ($h) => $h->where('user_id', $viewer->id),
+                'reports as reported' => fn ($r) => $r->where('reporter_id', $viewer->id),
+            ]))
             ->findOrFail($id);
 
         // A private Manicure answers exactly like one that does not exist.
@@ -57,17 +61,18 @@ class ManicureController extends Controller
             'isOwner' => $viewer?->id === $manicure->user_id,
             'heartCount' => $manicure->hearts_count,
             'hearted' => (bool) ($manicure->hearted ?? false),
+            'reported' => (bool) ($manicure->reported ?? false),
         ]);
     }
 
     public function edit(Request $request, string $id)
     {
-        return view('manicures.form', ['manicure' => $this->mine($request, $id)->load('photos')]);
+        return view('manicures.form', ['manicure' => $this->editable($request, $id)->load('photos')]);
     }
 
     public function update(Request $request, string $id, PhotoProcessor $processor)
     {
-        $manicure = $this->mine($request, $id);
+        $manicure = $this->editable($request, $id);
 
         $existing = $manicure->photos()->count();
         $room = max(0, Manicure::MAX_PHOTOS - $existing);
@@ -88,24 +93,18 @@ class ManicureController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        $manicure = $this->mine($request, $id)->load('photos');
-        $files = $manicure->photos->flatMap(fn ($p) => [$p->path, $p->thumb_path])->all();
-
-        $manicure->delete(); // photo rows go with it via the foreign key
-
-        $this->deleteFiles($files);
+        ManicureEraser::erase($this->mine($request, $id));
 
         return redirect('/manicures')->with('status', 'Manicure deleted.');
     }
 
-    /** The Manicure is already gone; a storage hiccup must not turn that into an error page. */
-    private function deleteFiles(array $files): void
+    /** The owner's Manicure, unless a moderator has hidden it (then it is locked, but can still be deleted). */
+    private function editable(Request $request, string $id): Manicure
     {
-        try {
-            Storage::disk(config('nailpolish.photos_disk'))->delete($files);
-        } catch (\Throwable $e) {
-            report($e);
-        }
+        $manicure = $this->mine($request, $id);
+        $manicure->abortIfLockedForEditing();
+
+        return $manicure;
     }
 
     private function mine(Request $request, string $id): Manicure

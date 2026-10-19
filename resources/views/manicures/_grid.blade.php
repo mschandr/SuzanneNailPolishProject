@@ -6,7 +6,7 @@
                 @if ($cover)<img src="/photos/{{ $cover->id }}/thumb?v={{ $cover->updated_at->timestamp }}" alt="Manicure from {{ $manicure->worn_on->toFormattedDateString() }}" loading="lazy" style="width:100%;aspect-ratio:1;object-fit:cover">@endif
                 <div>{{ $manicure->worn_on->toFormattedDateString() }}</div>
             </a>
-            @if (! empty($showPrivacy))<small>{{ $manicure->isPublic() ? 'Public' : 'Only you' }}</small>@endif
+            @if (! empty($showPrivacy))<small>{{ $manicure->hidden_at ? 'Hidden by a moderator' : ($manicure->isPublic() ? 'Public' : 'Only you') }}</small>@endif
         </li>
     @empty
         <li>No manicures yet.</li>
