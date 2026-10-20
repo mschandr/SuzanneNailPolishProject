@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\ColorFamily;
 use App\Models\Finish;
 use App\Models\Polish;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -101,8 +102,8 @@ class PolishPageTest extends TestCase
         $polish = $this->polish();
 
         $this->get($polish->url())->assertDontSee('/edit');
-        $this->actingAs(\App\Models\User::factory()->create())->get($polish->url())->assertDontSee('/edit');
-        $this->actingAs(\App\Models\User::factory()->admin()->create())->get($polish->url())
+        $this->actingAs(User::factory()->create())->get($polish->url())->assertDontSee('/edit');
+        $this->actingAs(User::factory()->admin()->create())->get($polish->url())
             ->assertSee("/admin/polishes/{$polish->id}/edit", false);
     }
 }

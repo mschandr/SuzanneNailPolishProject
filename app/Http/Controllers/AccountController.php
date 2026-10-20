@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DeleteStoredFiles;
-use App\Models\Bottle;
 use App\Models\ManicurePhoto;
 use App\Models\Polish;
 use App\Models\User;

@@ -1,5 +1,14 @@
 <?php
 
+use App\Models\Brand;
+use App\Models\ColorFamily;
+use App\Models\Finish;
+use App\Models\Polish;
+use Carbon\Carbon;
+use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 return [
@@ -135,17 +144,17 @@ return [
     // refuses to un-serialize any class not listed here, so each class that appears in a cached value must be named.
     // Without this the first view of a catalog page works and every later one fails with a 500.
     'serializable_classes' => [
-        \App\Models\Brand::class,
-        \App\Models\Polish::class,
-        \App\Models\ColorFamily::class,
-        \App\Models\Finish::class,
-        \Illuminate\Database\Eloquent\Collection::class,
-        \Illuminate\Database\Eloquent\Relations\Pivot::class,
-        \Illuminate\Support\Collection::class,
-        \Illuminate\Pagination\LengthAwarePaginator::class,
-        \Illuminate\Support\Carbon::class,
-        \Carbon\Carbon::class,
-        \Carbon\CarbonImmutable::class,
+        Brand::class,
+        Polish::class,
+        ColorFamily::class,
+        Finish::class,
+        Illuminate\Database\Eloquent\Collection::class,
+        Pivot::class,
+        Collection::class,
+        LengthAwarePaginator::class,
+        Illuminate\Support\Carbon::class,
+        Carbon::class,
+        CarbonImmutable::class,
     ],
 
 ];

@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\EnsureDisplayName;
+use App\Http\Middleware\EnsureNotSuspended;
+use App\Http\Middleware\NoCookiesOnPublicPhotos;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,12 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/login');
         $middleware->web(
-            prepend: [\App\Http\Middleware\NoCookiesOnPublicPhotos::class],
-            append: [\App\Http\Middleware\EnsureNotSuspended::class],
+            prepend: [NoCookiesOnPublicPhotos::class],
+            append: [EnsureNotSuspended::class],
         );
         $middleware->alias([
-            'display-name' => \App\Http\Middleware\EnsureDisplayName::class,
-            'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'display-name' => EnsureDisplayName::class,
+            'admin' => EnsureAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

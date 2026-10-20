@@ -112,14 +112,18 @@ class PhotoProcessor
 
         switch ($orientation) {
             case 2: imageflip($image, IMG_FLIP_HORIZONTAL);
+
                 return $image;
             case 3: return $turn($image, 180);
             case 4: imageflip($image, IMG_FLIP_VERTICAL);
+
                 return $image;
             case 5: imageflip($image, IMG_FLIP_HORIZONTAL);
+
                 return $turn($image, 90);
             case 6: return $turn($image, -90);
             case 7: imageflip($image, IMG_FLIP_HORIZONTAL);
+
                 return $turn($image, -90);
             case 8: return $turn($image, 90);
             default: return $image;

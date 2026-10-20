@@ -1,22 +1,22 @@
 <?php
 
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminHomeController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ImportController;
-use App\Http\Controllers\Admin\NeedsReviewController;
 use App\Http\Controllers\Admin\InviteController;
 use App\Http\Controllers\Admin\ModerationController;
+use App\Http\Controllers\Admin\NeedsReviewController;
 use App\Http\Controllers\Admin\PolishController as AdminPolishController;
 use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\ValueListController;
 use App\Http\Controllers\Auth\DisplayNameController;
+use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\BottleController;
 use App\Http\Controllers\BulkOwnController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CollectionController;
-use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\CreditsController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HealthController;
@@ -32,8 +32,8 @@ use App\Http\Controllers\ManicureSettingsController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\PolishController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PrivatePolishController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');

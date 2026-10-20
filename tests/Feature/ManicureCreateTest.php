@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\TestImages;
 use Tests\TestCase;
 
@@ -241,7 +242,7 @@ class ManicureCreateTest extends TestCase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('orientations')]
+    #[DataProvider('orientations')]
     public function test_every_exif_orientation_is_applied_to_the_right_corners(int $orientation, bool $swapsSides, string $blackAt, string $redAt): void
     {
         $this->create(['photos' => [TestImages::upload('phone.jpg', 800, 600, $orientation)]]);

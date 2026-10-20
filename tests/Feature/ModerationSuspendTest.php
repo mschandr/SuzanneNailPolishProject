@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Mail\MagicLinkMail;
-use App\Models\Manicure;
+use App\Models\Invite;
 use App\Models\ModerationLog;
+use App\Models\Report;
 use App\Models\User;
+use App\Support\SelfSignup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\Support\BuildsGalleryData;
@@ -92,7 +94,7 @@ class ModerationSuspendTest extends TestCase
         $this->actingAs($this->admin)->post('/admin/invites', ['email' => 'someone@example.com']);
         auth()->logout();
         // An invite sent to the suspended user's own address, from before they were suspended.
-        $invite = new \App\Models\Invite;
+        $invite = new Invite;
         $invite->forceFill(['email' => $this->owner->email, 'token_hash' => hash('sha256', 'tok'), 'expires_at' => now()->addDay()])->save();
 
         $this->post('/invite/tok')->assertRedirect('/login')->assertSessionHasErrors(['email' => 'This account has been suspended.']);
@@ -166,7 +168,7 @@ class ModerationSuspendTest extends TestCase
     public function test_the_queue_offers_to_suspend_the_owner_of_a_reported_manicure(): void
     {
         $m = $this->manicure($this->owner, [], 'public');
-        $r = new \App\Models\Report(['reason' => 'spam']);
+        $r = new Report(['reason' => 'spam']);
         $r->manicure_id = $m->id;
         $r->reporter_id = $this->person('R')->id;
         $r->status = 'open';
@@ -185,7 +187,7 @@ class ModerationSuspendTest extends TestCase
         $this->suspend($self);
 
         // Suspending must not free the place: someone else is still locked out of self-signup.
-        $this->assertFalse(\App\Support\SelfSignup::isOpen());
+        $this->assertFalse(SelfSignup::isOpen());
     }
 
     public function test_hiding_and_suspension_are_independent(): void

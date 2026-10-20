@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Bottle;
 use App\Models\Manicure;
-use App\Models\ManicurePolish;
 use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

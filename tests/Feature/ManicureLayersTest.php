@@ -8,7 +8,9 @@ use App\Models\Manicure;
 use App\Models\ManicurePolish;
 use App\Models\Polish;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\TestImages;
 use Tests\TestCase;
@@ -469,9 +471,9 @@ class ManicureLayersTest extends TestCase
         $this->add($this->polish('A'));
         $failures = 0;
         // The first insert behaves as if another request just took the same slot.
-        \Illuminate\Support\Facades\Event::listen('eloquent.creating: '.ManicurePolish::class, function () use (&$failures) {
+        Event::listen('eloquent.creating: '.ManicurePolish::class, function () use (&$failures) {
             if ($failures++ === 0) {
-                throw new \Illuminate\Database\UniqueConstraintViolationException('sqlite', 'insert', [], new \PDOException('UNIQUE constraint failed'));
+                throw new UniqueConstraintViolationException('sqlite', 'insert', [], new \PDOException('UNIQUE constraint failed'));
             }
         });
 
@@ -484,8 +486,8 @@ class ManicureLayersTest extends TestCase
 
     public function test_if_the_collision_keeps_happening_the_user_gets_a_clear_message(): void
     {
-        \Illuminate\Support\Facades\Event::listen('eloquent.creating: '.ManicurePolish::class, function () {
-            throw new \Illuminate\Database\UniqueConstraintViolationException('sqlite', 'insert', [], new \PDOException('UNIQUE constraint failed'));
+        Event::listen('eloquent.creating: '.ManicurePolish::class, function () {
+            throw new UniqueConstraintViolationException('sqlite', 'insert', [], new \PDOException('UNIQUE constraint failed'));
         });
 
         $this->add($this->polish('B'))->assertSessionHasErrors('polish_id');

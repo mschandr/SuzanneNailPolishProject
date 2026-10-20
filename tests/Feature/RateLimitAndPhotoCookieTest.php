@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Manicure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -72,7 +73,7 @@ class RateLimitAndPhotoCookieTest extends TestCase
             'worn_on' => '2026-10-15', 'visibility' => $visibility, 'photos' => [TestImages::upload('a.jpg', 400, 300)],
         ]);
         auth()->logout();
-        $manicure = \App\Models\Manicure::findOrFail(basename($response->headers->get('Location')));
+        $manicure = Manicure::findOrFail(basename($response->headers->get('Location')));
 
         return [$owner, $manicure->photos->first()];
     }

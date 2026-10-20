@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Jobs\DeleteStoredFiles;
+use App\Mail\MagicLinkMail;
+use App\Mail\NoAccountMail;
 use App\Models\Bottle;
 use App\Models\Brand;
 use App\Models\Invite;
@@ -16,11 +18,15 @@ use App\Models\ModerationLog;
 use App\Models\Polish;
 use App\Models\Report;
 use App\Models\User;
+use App\Support\SelfSignup;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\Support\BuildsGalleryData;
 use Tests\Support\TestImages;
 use Tests\TestCase;
@@ -332,8 +338,12 @@ class AccountDeletionTest extends TestCase
 
     public function test_a_storage_failure_makes_the_job_fail_so_the_queue_retries_it(): void
     {
-        Storage::shouldReceive('disk')->with('photos')->andReturn(new class {
-            public function delete($paths) { throw new \RuntimeException('storage down'); }
+        Storage::shouldReceive('disk')->with('photos')->andReturn(new class
+        {
+            public function delete($paths)
+            {
+                throw new \RuntimeException('storage down');
+            }
         });
 
         $this->expectException(\RuntimeException::class);
@@ -344,21 +354,25 @@ class AccountDeletionTest extends TestCase
     public function test_if_the_cleanup_cannot_even_be_queued_the_user_still_sees_success_and_the_paths_are_logged(): void
     {
         $this->populate($this->me);
-        \Illuminate\Support\Facades\Log::spy();
+        Log::spy();
         // The queue runs inline in tests, so a dead disk makes the dispatch itself throw.
-        Storage::shouldReceive('disk')->andReturn(new class {
-            public function delete($paths) { throw new \RuntimeException('storage down'); }
+        Storage::shouldReceive('disk')->andReturn(new class
+        {
+            public function delete($paths)
+            {
+                throw new \RuntimeException('storage down');
+            }
         });
 
         $this->deleteAccount($this->me)->assertRedirect('/')->assertSessionHas('status');
 
         $this->assertNull(User::find($this->me->id));
-        \Illuminate\Support\Facades\Log::shouldHaveReceived('error')->withArgs(fn ($message, $context = []) => str_contains($message, 'file cleanup') && ! empty($context['files']))->atLeast()->once();
+        Log::shouldHaveReceived('error')->withArgs(fn ($message, $context = []) => str_contains($message, 'file cleanup') && ! empty($context['files']))->atLeast()->once();
     }
 
     public function test_emails_stored_in_another_case_are_still_cleaned_up(): void
     {
-        DB::table('invite_requests')->insert(['id' => (string) \Illuminate\Support\Str::uuid(), 'email' => 'Leaver@Example.COM', 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('invite_requests')->insert(['id' => (string) Str::uuid(), 'email' => 'Leaver@Example.COM', 'created_at' => now(), 'updated_at' => now()]);
 
         $this->deleteAccount($this->me);
 
@@ -432,23 +446,23 @@ class AccountDeletionTest extends TestCase
     public function test_deleting_an_account_does_not_free_up_a_self_signup_place(): void
     {
         config(['nailpolish.self_signup_limit' => 1]);
-        $this->assertFalse(\App\Support\SelfSignup::isOpen(), 'the one self-signup place is used by Leaver');
+        $this->assertFalse(SelfSignup::isOpen(), 'the one self-signup place is used by Leaver');
 
         $this->deleteAccount($this->me);
 
-        $this->assertFalse(\App\Support\SelfSignup::isOpen(), 'it stays closed after they leave');
+        $this->assertFalse(SelfSignup::isOpen(), 'it stays closed after they leave');
     }
 
     public function test_the_email_can_sign_up_again_afterwards_only_by_invite_once_the_cap_is_reached(): void
     {
         config(['nailpolish.self_signup_limit' => 1]);
         $this->deleteAccount($this->me);
-        \Illuminate\Support\Facades\Mail::fake();
+        Mail::fake();
 
         $this->post('/login', ['email' => 'leaver@example.com']);
 
-        \Illuminate\Support\Facades\Mail::assertNotQueued(\App\Mail\MagicLinkMail::class);
-        \Illuminate\Support\Facades\Mail::assertQueued(\App\Mail\NoAccountMail::class);
+        Mail::assertNotQueued(MagicLinkMail::class);
+        Mail::assertQueued(NoAccountMail::class);
     }
 
     public function test_the_deleted_users_public_pages_no_longer_exist(): void

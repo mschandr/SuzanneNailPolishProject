@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Manicure;
+use App\Models\ManicurePolish;
 use App\Models\ModerationLog;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\BuildsGalleryData;
 use Tests\Support\TestImages;
@@ -111,7 +113,7 @@ class ModerationHideDeleteTest extends TestCase
     public function test_a_hidden_manicure_disappears_from_every_public_surface(): void
     {
         $polish = $this->polish('ILNP', 'Aurora');
-        $layer = new \App\Models\ManicurePolish;
+        $layer = new ManicurePolish;
         $layer->manicure_id = $this->m->id;
         $layer->polish_id = $polish->id;
         $layer->position = 0;
@@ -308,7 +310,7 @@ class ModerationHideDeleteTest extends TestCase
     public function test_if_the_log_cannot_be_written_the_hide_does_not_happen(): void
     {
         $this->report($this->m);
-        \Illuminate\Support\Facades\Event::listen('eloquent.creating: '.ModerationLog::class, fn () => throw new \RuntimeException('log unavailable'));
+        Event::listen('eloquent.creating: '.ModerationLog::class, fn () => throw new \RuntimeException('log unavailable'));
 
         $this->hide()->assertStatus(500);
 
@@ -320,7 +322,7 @@ class ModerationHideDeleteTest extends TestCase
     {
         $this->report($this->m);
         $path = $this->m->photos->first()->path;
-        \Illuminate\Support\Facades\Event::listen('eloquent.creating: '.ModerationLog::class, fn () => throw new \RuntimeException('log unavailable'));
+        Event::listen('eloquent.creating: '.ModerationLog::class, fn () => throw new \RuntimeException('log unavailable'));
 
         $this->actingAs($this->admin)->delete("/admin/manicures/{$this->m->id}")->assertStatus(500);
 

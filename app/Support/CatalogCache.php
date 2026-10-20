@@ -3,6 +3,8 @@
 namespace App\Support;
 
 use Closure;
+use Illuminate\Pagination\AbstractPaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -43,11 +45,11 @@ class CatalogCache
             return true;
         }
 
-        if ($value instanceof \Illuminate\Support\Collection) {
+        if ($value instanceof Collection) {
             return $incomplete($value->first());
         }
 
-        if ($value instanceof \Illuminate\Pagination\AbstractPaginator) {
+        if ($value instanceof AbstractPaginator) {
             return $incomplete($value->items()[0] ?? null);
         }
 

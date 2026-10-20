@@ -6,6 +6,7 @@ use App\Models\Heart;
 use App\Models\Manicure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\Support\BuildsGalleryData;
 use Tests\TestCase;
 
@@ -159,8 +160,8 @@ class HeartsTest extends TestCase
     {
         $first = $this->manicure($this->owner, [], 'public');
         $second = $this->manicure($this->owner, [], 'public');
-        \Illuminate\Support\Facades\DB::table('hearts')->insert(['user_id' => $this->fan->id, 'manicure_id' => $first->id, 'created_at' => now()->subDay()]);
-        \Illuminate\Support\Facades\DB::table('hearts')->insert(['user_id' => $this->fan->id, 'manicure_id' => $second->id, 'created_at' => now()]);
+        DB::table('hearts')->insert(['user_id' => $this->fan->id, 'manicure_id' => $first->id, 'created_at' => now()->subDay()]);
+        DB::table('hearts')->insert(['user_id' => $this->fan->id, 'manicure_id' => $second->id, 'created_at' => now()]);
 
         $this->actingAs($this->fan)->get('/liked')->assertOk()
             ->assertSeeInOrder([$this->link($second), $this->link($first)], false)
@@ -225,11 +226,11 @@ class HeartsTest extends TestCase
             $this->heart($this->person("Fan{$i}"), $this->manicure);
         }
 
-        \Illuminate\Support\Facades\DB::flushQueryLog();
-        \Illuminate\Support\Facades\DB::enableQueryLog();
+        DB::flushQueryLog();
+        DB::enableQueryLog();
         $this->actingAs($this->fan)->get("/manicures/{$this->manicure->id}")->assertOk()->assertSee('8 hearts');
-        $heartQueries = collect(\Illuminate\Support\Facades\DB::getQueryLog())->filter(fn ($q) => str_contains($q['query'], '"hearts"'))->count();
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        $heartQueries = collect(DB::getQueryLog())->filter(fn ($q) => str_contains($q['query'], '"hearts"'))->count();
+        DB::disableQueryLog();
 
         $this->assertLessThanOrEqual(1, $heartQueries, 'count and viewer state come from the one manicure query');
     }

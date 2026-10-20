@@ -6,9 +6,9 @@ use App\Models\Invite;
 use App\Models\InviteRequest;
 use App\Models\User;
 use App\Support\SelfSignup;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -51,30 +51,30 @@ class InviteRequestController extends Controller
     {
         try {
             $user = Cache::lock('self-signup', 10)->block(5, fn () => DB::transaction(function () use ($token) {
-            $invite = Invite::where('token_hash', hash('sha256', $token))
-                ->whereNull('used_at')
-                ->where('expires_at', '>', now())
-                ->lockForUpdate()
-                ->first();
+                $invite = Invite::where('token_hash', hash('sha256', $token))
+                    ->whereNull('used_at')
+                    ->where('expires_at', '>', now())
+                    ->lockForUpdate()
+                    ->first();
 
-            if (! $invite) {
-                return null;
-            }
+                if (! $invite) {
+                    return null;
+                }
 
-            $user = User::where('email', $invite->email)->first();
+                $user = User::where('email', $invite->email)->first();
 
-            if ($user?->isSuspended()) {
-                return 'suspended';
-            }
+                if ($user?->isSuspended()) {
+                    return 'suspended';
+                }
 
-            $invite->forceFill(['used_at' => now()])->save();
+                $invite->forceFill(['used_at' => now()])->save();
 
-            if (! $user) {
-                $user = new User(['email' => $invite->email, 'email_verified_at' => now()]);
-                $user->forceFill(['signup_method' => 'invite'])->save();
-            }
+                if (! $user) {
+                    $user = new User(['email' => $invite->email, 'email_verified_at' => now()]);
+                    $user->forceFill(['signup_method' => 'invite'])->save();
+                }
 
-            return $user;
+                return $user;
             }));
         } catch (LockTimeoutException) {
             return redirect('/login')->withErrors(['email' => 'We are busy right now. Please open the link again in a moment.']);

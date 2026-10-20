@@ -8,6 +8,7 @@ use App\Models\Location;
 use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class BulkOwnTest extends TestCase
@@ -194,7 +195,7 @@ class BulkOwnTest extends TestCase
 
     public function test_more_than_100_in_one_go_is_refused(): void
     {
-        $ids = array_map(fn () => (string) \Illuminate\Support\Str::uuid(), range(1, 101));
+        $ids = array_map(fn () => (string) Str::uuid(), range(1, 101));
 
         $this->bulk(['polish_ids' => $ids])->assertSessionHasErrors('polish_ids');
     }

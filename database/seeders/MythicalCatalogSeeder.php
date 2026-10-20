@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\ColorFamily;
 use App\Models\Finish;
 use App\Models\Polish;
+use App\Support\CatalogCache;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -66,7 +67,7 @@ class MythicalCatalogSeeder extends Seeder
             }
         }
 
-        \App\Support\CatalogCache::bump();
+        CatalogCache::bump();
     }
 
     private function swatch(string $hex): string

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\MagicLinkMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -92,7 +93,7 @@ class MagicLinkSigninTest extends TestCase
         $url = $this->requestLink('suzanne@example.com');
 
         // Someone else is in the middle of creating an account, holding the lock that counts the first 100 signups.
-        $held = \Illuminate\Support\Facades\Cache::lock('self-signup', 30);
+        $held = Cache::lock('self-signup', 30);
         $this->assertTrue($held->get());
 
         $started = microtime(true);

@@ -7,15 +7,16 @@
  *   php load/profile.php [repetitions]
  */
 
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 require __DIR__.'/../vendor/autoload.php';
 $app = require __DIR__.'/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $n = (int) ($argv[1] ?? 40);
 
-$handle = function (string $uri, array $cookies = []) use ($kernel, $app) {
+$handle = function (string $uri, array $cookies = []) use ($kernel) {
     $request = Request::create($uri, 'GET', [], $cookies);
     $response = $kernel->handle($request);
     $kernel->terminate($request, $response);

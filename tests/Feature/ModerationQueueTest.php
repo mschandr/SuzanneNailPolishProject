@@ -7,6 +7,7 @@ use App\Models\ModerationLog;
 use App\Models\Report;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\Support\BuildsGalleryData;
 use Tests\TestCase;
 
@@ -201,7 +202,7 @@ class ModerationQueueTest extends TestCase
         $this->actingAs($this->admin)->post($this->link($m).'/heart')->assertNotFound();
         $this->actingAs($this->admin)->post($this->link($m).'/report', ['reason' => 'spam'])->assertNotFound();
 
-        $this->assertSame(0, \Illuminate\Support\Facades\DB::table('hearts')->count());
+        $this->assertSame(0, DB::table('hearts')->count());
         $this->assertSame(1, Report::count());
     }
 }

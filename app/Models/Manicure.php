@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class Manicure extends Model
 {
@@ -62,7 +63,7 @@ class Manicure extends Model
      * The layers that count right now: the whole-hand list in whole-hand mode, the nail lists in per-nail mode.
      * The other mode's list is kept but dormant, so switching modes never loses anything.
      *
-     * @return \Illuminate\Support\Collection<int, ManicurePolish>
+     * @return Collection<int, ManicurePolish>
      */
     public function activeLayers()
     {

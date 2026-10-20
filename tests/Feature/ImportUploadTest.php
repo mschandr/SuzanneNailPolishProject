@@ -3,12 +3,15 @@
 namespace Tests\Feature;
 
 use App\Models\Brand;
+use App\Models\ColorFamily;
+use App\Models\Finish;
 use App\Models\Import;
 use App\Models\ImportRow;
 use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Tests\Support\BuildsGalleryData;
 use Tests\TestCase;
 
@@ -263,8 +266,8 @@ class ImportUploadTest extends TestCase
 
     public function test_an_unknown_colour_or_finish_is_a_warning_not_an_error(): void
     {
-        \App\Models\ColorFamily::create(['name' => 'Red']);
-        \App\Models\Finish::create(['name' => 'Creme']);
+        ColorFamily::create(['name' => 'Red']);
+        Finish::create(['name' => 'Creme']);
 
         $this->upload(self::csv(['B,Odd,Chartreuse,Creme;Sparkly'], 'brand,shade,color_family,finishes'));
 
@@ -277,9 +280,9 @@ class ImportUploadTest extends TestCase
 
     public function test_known_colours_and_finishes_match_ignoring_case_and_spacing(): void
     {
-        \App\Models\ColorFamily::create(['name' => 'Red']);
-        \App\Models\Finish::create(['name' => 'Creme']);
-        \App\Models\Finish::create(['name' => 'Shimmer']);
+        ColorFamily::create(['name' => 'Red']);
+        Finish::create(['name' => 'Creme']);
+        Finish::create(['name' => 'Shimmer']);
 
         $this->upload(self::csv(['B,Fine,  RED ,creme ; SHIMMER'], 'brand,shade,color_family,finishes'));
 
@@ -383,13 +386,13 @@ class ImportUploadTest extends TestCase
     public function test_a_big_upload_stores_its_rows_in_few_queries(): void
     {
         $rows = array_map(fn ($i) => "Brand,Shade {$i}", range(1, 1500));
-        \Illuminate\Support\Facades\DB::flushQueryLog();
-        \Illuminate\Support\Facades\DB::enableQueryLog();
+        DB::flushQueryLog();
+        DB::enableQueryLog();
 
         $this->upload(self::csv($rows, 'brand,shade'))->assertSessionHasNoErrors();
 
-        $inserts = collect(\Illuminate\Support\Facades\DB::getQueryLog())->filter(fn ($q) => str_starts_with($q['query'], 'insert into "import_rows"'))->count();
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        $inserts = collect(DB::getQueryLog())->filter(fn ($q) => str_starts_with($q['query'], 'insert into "import_rows"'))->count();
+        DB::disableQueryLog();
         $this->assertLessThanOrEqual(10, $inserts, "1500 rows should be a handful of inserts, got {$inserts}");
         $this->assertSame(1500, $this->latest()->rows()->count());
     }

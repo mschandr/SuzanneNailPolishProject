@@ -8,6 +8,7 @@ use App\Models\Finish;
 use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -96,7 +97,7 @@ class CatalogCacheTest extends TestCase
         // Change the row behind the cache's back, then wipe only the version key
         // (what an eviction or cache:clear does).
         Polish::whereKey($polish->id)->update(['name' => 'Renamed']);
-        \Illuminate\Support\Facades\Cache::forget('catalog:version');
+        Cache::forget('catalog:version');
 
         $this->get("/holo-taco/{$polish->id}/renamed")->assertOk()->assertSee('Renamed');
     }
@@ -145,11 +146,11 @@ class CatalogCacheTest extends TestCase
     {
         $polish = $this->polish();
         $this->get('/catalog')->assertOk(); // warms the cache under the current version
-        $version = \Illuminate\Support\Facades\Cache::get('catalog:version');
+        $version = Cache::get('catalog:version');
 
         // Simulate a class that is missing from cache.serializable_classes: it comes back as an incomplete object.
         $broken = unserialize('O:8:"Missing_":0:{}');
-        \Illuminate\Support\Facades\Cache::put("catalog:v{$version}:brands", $broken, 3600);
+        Cache::put("catalog:v{$version}:brands", $broken, 3600);
 
         $this->get('/catalog')->assertOk()->assertSee($polish->brand->name);
     }

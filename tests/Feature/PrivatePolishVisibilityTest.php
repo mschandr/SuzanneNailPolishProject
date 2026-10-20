@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class PrivatePolishVisibilityTest extends TestCase
@@ -116,8 +117,8 @@ class PrivatePolishVisibilityTest extends TestCase
     {
         $this->actingAs($this->owner)->get($this->secret->url())->assertOk();
 
-        $version = \Illuminate\Support\Facades\Cache::get('catalog:version');
-        $this->assertFalse(\Illuminate\Support\Facades\Cache::has("catalog:v{$version}:polish:{$this->secret->id}"));
+        $version = Cache::get('catalog:version');
+        $this->assertFalse(Cache::has("catalog:v{$version}:polish:{$this->secret->id}"));
     }
 
     public function test_a_private_only_brand_is_not_in_the_admin_forms_brand_suggestions(): void
@@ -132,11 +133,11 @@ class PrivatePolishVisibilityTest extends TestCase
     public function test_a_new_brand_created_for_a_private_polish_does_not_invalidate_the_public_cache(): void
     {
         $this->get('/catalog')->assertOk();
-        $before = \Illuminate\Support\Facades\Cache::get('catalog:version');
+        $before = Cache::get('catalog:version');
 
         $this->actingAs($this->owner)->post('/my-polishes', ['brand' => 'Brand New Indie', 'name' => 'First Shade'])->assertRedirect();
 
-        $this->assertSame($before, \Illuminate\Support\Facades\Cache::get('catalog:version'));
+        $this->assertSame($before, Cache::get('catalog:version'));
     }
 
     public function test_the_shared_cache_never_serves_it_to_a_stranger(): void
@@ -151,11 +152,11 @@ class PrivatePolishVisibilityTest extends TestCase
     public function test_adding_a_private_polish_does_not_invalidate_the_public_cache(): void
     {
         $this->get('/catalog/phoenix-parlour')->assertOk();
-        $before = \Illuminate\Support\Facades\Cache::get('catalog:version');
+        $before = Cache::get('catalog:version');
 
         $this->privatePolish($this->owner, $this->public->brand, 'Another Secret');
 
-        $this->assertSame($before, \Illuminate\Support\Facades\Cache::get('catalog:version'));
+        $this->assertSame($before, Cache::get('catalog:version'));
     }
 
     public function test_the_owners_own_bottle_of_it_can_be_added_but_a_strangers_cannot(): void

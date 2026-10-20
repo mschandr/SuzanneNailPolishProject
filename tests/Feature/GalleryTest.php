@@ -2,10 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Finish;
 use App\Models\ColorFamily;
-use App\Models\User;
+use App\Models\Finish;
+use App\Models\ManicurePhoto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\Support\BuildsGalleryData;
 use Tests\TestCase;
 
@@ -251,11 +252,11 @@ class GalleryTest extends TestCase
             $this->manicure($this->person('P'.$_), [$polish], 'public');
         }
 
-        \Illuminate\Support\Facades\DB::flushQueryLog();
-        \Illuminate\Support\Facades\DB::enableQueryLog();
+        DB::flushQueryLog();
+        DB::enableQueryLog();
         $this->get('/gallery?brand=ilnp')->assertOk();
-        $count = count(\Illuminate\Support\Facades\DB::getQueryLog());
-        \Illuminate\Support\Facades\DB::disableQueryLog();
+        $count = count(DB::getQueryLog());
+        DB::disableQueryLog();
 
         $this->assertLessThan(15, $count, "expected a handful of queries for 12 tiles, got {$count}");
     }
@@ -268,7 +269,7 @@ class GalleryTest extends TestCase
     public function test_a_manicure_with_no_photo_still_has_a_clickable_tile(): void
     {
         $m = $this->manicure($this->person('Suzanne'), [], 'public');
-        \App\Models\ManicurePhoto::query()->delete();
+        ManicurePhoto::query()->delete();
 
         $this->get('/gallery')->assertOk()->assertSee($this->link($m), false)->assertSee('No photo');
     }

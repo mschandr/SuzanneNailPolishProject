@@ -346,8 +346,12 @@ class ManicureManageTest extends TestCase
     {
         $m = $this->make();
         // Make every file deletion throw, like a storage outage would.
-        Storage::shouldReceive('disk')->andReturn(new class {
-            public function delete($f) { throw new \RuntimeException('storage down'); }
+        Storage::shouldReceive('disk')->andReturn(new class
+        {
+            public function delete($f)
+            {
+                throw new \RuntimeException('storage down');
+            }
         });
 
         $this->actingAs($this->me)->delete("/manicures/{$m->id}")->assertRedirect('/manicures');

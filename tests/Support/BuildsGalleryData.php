@@ -10,6 +10,7 @@ use App\Models\ManicurePhoto;
 use App\Models\ManicurePolish;
 use App\Models\Polish;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /** Builds Manicures, Polishes and hearts directly, without going through uploads. */
 trait BuildsGalleryData
@@ -63,7 +64,7 @@ trait BuildsGalleryData
 
     protected function heart(User $by, Manicure $m): void
     {
-        \Illuminate\Support\Facades\DB::table('hearts')->insert(['user_id' => $by->id, 'manicure_id' => $m->id]);
+        DB::table('hearts')->insert(['user_id' => $by->id, 'manicure_id' => $m->id]);
     }
 
     protected function link(Manicure $m): string

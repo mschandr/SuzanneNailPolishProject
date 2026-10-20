@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Report;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Event;
 use Tests\Support\BuildsGalleryData;
 use Tests\TestCase;
 
@@ -172,8 +174,8 @@ class ReportTest extends TestCase
     public function test_a_double_submit_race_is_a_friendly_repeat_not_a_500(): void
     {
         // Another request inserts the same report between our "already reported?" check and our insert.
-        \Illuminate\Support\Facades\Event::listen('eloquent.creating: '.Report::class, function () {
-            throw new \Illuminate\Database\UniqueConstraintViolationException('sqlite', 'insert', [], new \PDOException('UNIQUE constraint failed'));
+        Event::listen('eloquent.creating: '.Report::class, function () {
+            throw new UniqueConstraintViolationException('sqlite', 'insert', [], new \PDOException('UNIQUE constraint failed'));
         });
 
         $this->report()->assertRedirect()->assertSessionHas('status', 'You have already reported this manicure.');

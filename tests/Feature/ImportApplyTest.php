@@ -11,6 +11,7 @@ use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Tests\Support\BuildsGalleryData;
 use Tests\TestCase;
 
@@ -249,7 +250,7 @@ class ImportApplyTest extends TestCase
     public function test_if_the_audit_entry_cannot_be_written_nothing_is_added(): void
     {
         $import = $this->upload(['B,One'], 'brand,shade');
-        \Illuminate\Support\Facades\Event::listen('eloquent.creating: '.ModerationLog::class, fn () => throw new \RuntimeException('log unavailable'));
+        Event::listen('eloquent.creating: '.ModerationLog::class, fn () => throw new \RuntimeException('log unavailable'));
 
         $this->apply($import)->assertStatus(500);
 
