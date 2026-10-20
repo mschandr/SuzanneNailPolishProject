@@ -1,58 +1,56 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Nail Polish Collector
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A multi-user web app for keeping track of the nail polishes you own and where they are, and for sharing photos of the
+manicures you wear them in.
 
-## About Laravel
+- **Catalog**: a public list of polishes (brand, shade, finish, colour family), built by the Admin by hand, by CSV import,
+  and by promoting polishes users add privately.
+- **Collection**: mark the polishes you own, with the place each one is kept; tick many at once; search "do I own this?"
+  from your phone in a shop. Shades the Catalog doesn't have can be added as private polishes.
+- **Manicures and the Gallery**: upload photos (metadata stripped, private by choice), list the polishes worn (for the
+  whole hand or nail by nail), and browse and heart other people's, filtered by polish, brand, finish or colour.
+- **Admin**: import polishes, review reports, hide or delete Manicures, suspend users, send invite codes.
+- Sign-in is by emailed link. The first 100 people can sign up themselves; after that it's by invitation.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Laravel 13 / PHP 8.3 / PostgreSQL. Domain vocabulary is in [`CONTEXT.md`](CONTEXT.md); decisions are in [`docs/adr/`](docs/adr).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Running it locally
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env && php artisan key:generate
+# create a Postgres database, put its details in .env (and set ADMIN_EMAIL to your own address), then:
+php artisan migrate
+php artisan db:seed                                   # colour families and finishes
+php artisan db:seed --class=MythicalCatalogSeeder     # optional: 10 made-up polishes to play with
+php artisan db:seed --class=FeaturedGallerySeeder     # optional: two openly licensed sample photos
+php artisan storage:link
+php artisan serve
+php artisan queue:work                                # sign-in emails are queued: they never send without this
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+With the default `MAIL_MAILER=log` the sign-in link is written to `storage/logs/laravel.log` instead of being emailed.
+Sign in with the `ADMIN_EMAIL` address to become the Admin.
 
-## Contributing
+## Tests
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+php artisan test
+```
 
-## Code of Conduct
+The suite runs on in-memory SQLite and a cache that serializes values like production's. SQLite is not Postgres, so
+`load/profile.php` and the checks described in `load/README.md` also exist for the real database.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Putting it on a server
 
-## Security Vulnerabilities
+- [`docs/production.md`](docs/production.md): what to install, the settings that mattered in load testing, sizing, and a
+  go-live checklist.
+- [`deploy/`](deploy): nginx, PHP-FPM, OPcache, supervisor and `.env` templates, and `deploy.sh`.
+- [`load/README.md`](load/README.md): a k6 load test that logs real users in and browses like people do, plus how to run it
+  on the real droplet.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## What isn't built
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Reading product data from Vendors' websites. Their terms forbid it, so polishes come in by CSV
+  (`/admin/imports`). Discontinued and Watchlist checks would need a Vendor's written permission.
+- Wishlists, comments and followers (deliberately left out for now).

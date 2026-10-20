@@ -288,4 +288,34 @@ class ManicureCreateTest extends TestCase
         $this->create(['photos' => array_map(fn ($i) => TestImages::upload("p{$i}.jpg", 300, 200), range(1, 5))])
             ->assertSessionHasErrors(['photos' => 'You can have at most 4 photos on a manicure.']);
     }
+
+    public function test_the_upload_errors_are_written_for_people_not_programmers(): void
+    {
+        $big = UploadedFile::fake()->image('big.jpg', 100, 100)->size(10241);
+        $pdf = UploadedFile::fake()->create('notes.pdf', 10, 'application/pdf');
+
+        $this->create(['photos' => [$big]])
+            ->assertSessionHasErrors(['photos.0' => 'Each photo must be 10 MB or smaller.']);
+        $this->create(['photos' => [$pdf]])
+            ->assertSessionHasErrors(['photos.0' => 'Photos must be JPG, PNG or WebP pictures.']);
+    }
+
+    public function test_a_photo_that_failed_to_upload_gets_a_plain_message(): void
+    {
+        // A file the server rejected before Laravel saw it (for instance one over PHP's own upload limit).
+        $failed = new UploadedFile(tempnam(sys_get_temp_dir(), 'x'), 'photo.jpg', 'image/jpeg', UPLOAD_ERR_INI_SIZE, true);
+
+        $this->create(['photos' => [$failed]])
+            ->assertSessionHasErrors(['photos.0' => 'That photo could not be uploaded. It may be over 10 MB, or the connection dropped. Please try again.']);
+    }
+
+    public function test_the_same_friendly_errors_apply_when_adding_photos_to_an_existing_manicure(): void
+    {
+        $this->create(['photos' => [TestImages::upload('a.jpg', 300, 200)]]);
+        $m = Manicure::firstOrFail();
+        $big = UploadedFile::fake()->image('big.jpg', 100, 100)->size(10241);
+
+        $this->actingAs($this->me)->put("/manicures/{$m->id}", ['worn_on' => '2026-10-15', 'photos' => [$big]])
+            ->assertSessionHasErrors(['photos.0' => 'Each photo must be 10 MB or smaller.']);
+    }
 }

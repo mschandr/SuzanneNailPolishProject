@@ -72,6 +72,22 @@ Run k6 from a **different machine** (a second small droplet is ideal), or the te
 4. Look at the thresholds at the bottom: k6 exits non-zero if the site does not hold. Watch `top`, `pg_stat_activity`
    and the PHP-FPM status while it runs. If pages queue, add vCPUs or PHP workers (see `docs/production.md`).
 
+## Uploads (checked separately, not part of the 1,000-user scenario)
+
+Real multipart uploads through nginx and PHP-FPM with the production limits (`deploy/php/nailpolish.ini`), signed in as a user:
+
+| Case | Result |
+|---|---|
+| One 3.1 MB phone photo (4000x3000) | saved in **0.55 s**; stored as 1600x1200 (119 KB) + 400x300 thumbnail (5 KB), no EXIF |
+| Four photos, 19.7 MB in total (one 9.4 MB) | saved in **1.85 s** |
+| One 11 MB photo | refused in 0.07 s: "Each photo must be 10 MB or smaller." |
+| Five photos | refused in 0.09 s: "You can have at most 4 photos on a manicure." |
+| **24 simultaneous** 3 MB uploads | all 24 succeeded; 3.1 s wall time, median 2.9 s each, about **7.6 uploads/s** on 4 shared cores |
+
+Each upload costs about half a second of CPU, so even a busy evening for ~100 users is far below what the droplet can do.
+Without the larger `upload_max_filesize` / `post_max_size` / nginx `client_max_body_size`, anything over 1-2 MB would fail,
+which is why those settings are in `deploy/`.
+
 ## What this does and does not show
 
 - **Shown:** the application code is cheap (3-16 ms and 3-8 queries per page); the bottlenecks were connection setup and a
@@ -79,5 +95,5 @@ Run k6 from a **different machine** (a second small droplet is ideal), or the te
 - **Not shown:** performance on your actual droplet. This machine is a different CPU, shared with the load generator.
   Treat the numbers as relative (what helped) and re-run on the droplet for absolute ones.
 - The dataset's photos are small (about 50 KB), real photos are larger, so bandwidth is understated.
-- Only guests and signed-in browsing were simulated: no photo uploads (they are heavy PHP work: expect about 100-300 ms each).
+- The 1,000-user scenario is browsing only. Uploads were checked separately, by hand, on the same stack (below).
 - The soak lasted 5 minutes, not hours: slow leaks over days are not covered.

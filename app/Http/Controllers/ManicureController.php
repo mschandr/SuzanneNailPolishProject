@@ -30,7 +30,7 @@ class ManicureController extends Controller
     {
         $data = $request->validate(
             $this->rules($request, null) + ['photos' => $this->photosRule($request, 0, required: true)],
-            ['photos.max' => 'You can have at most '.Manicure::MAX_PHOTOS.' photos on a manicure.'],
+            ['photos.max' => 'You can have at most '.Manicure::MAX_PHOTOS.' photos on a manicure.'] + $this->photoMessages(),
         );
 
         $manicure = new Manicure($this->attributes($data));
@@ -81,7 +81,7 @@ class ManicureController extends Controller
             $this->rules($request, $manicure) + ['photos' => $this->photosRule($request, $existing, required: false)],
             ['photos.max' => $room === 0
                 ? 'This manicure already has '.Manicure::MAX_PHOTOS.' photos. Remove one to add another.'
-                : "This manicure has {$existing} ".Str::plural('photo', $existing).", so you can add {$room} more."],
+                : "This manicure has {$existing} ".Str::plural('photo', $existing).", so you can add {$room} more."] + $this->photoMessages(),
         );
 
         $manicure->fill($this->attributes($data));
@@ -110,6 +110,17 @@ class ManicureController extends Controller
     private function mine(Request $request, string $id): Manicure
     {
         return $request->user()->manicures()->findOrFail($id);
+    }
+
+    /** What a person sees when a photo is rejected: no field names, no kilobytes. */
+    private function photoMessages(): array
+    {
+        return [
+            'photos.*.max' => 'Each photo must be 10 MB or smaller.',
+            'photos.*.mimes' => 'Photos must be JPG, PNG or WebP pictures.',
+            'photos.*.file' => 'That file is not a photo.',
+            'photos.*.uploaded' => 'That photo could not be uploaded. It may be over 10 MB, or the connection dropped. Please try again.',
+        ];
     }
 
     /** @return array<string, mixed> */

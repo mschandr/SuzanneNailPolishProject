@@ -42,6 +42,9 @@ opcache.interned_strings_buffer=16
 opcache.max_accelerated_files=10000
 opcache.validate_timestamps=0
 memory_limit=256M
+; same upload limits as deploy/php/nailpolish.ini: four 10 MB photos per Manicure
+upload_max_filesize=12M
+post_max_size=50M
 display_errors=0
 log_errors=1
 expose_php=0

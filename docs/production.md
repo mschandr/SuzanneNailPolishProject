@@ -56,3 +56,21 @@ On a 4-core test machine that was also running the load generator, nginx and Pos
 - **Reload PHP-FPM after every deploy** (OPcache doesn't re-check files). `deploy/deploy.sh` does this.
 - **`LOAD_TEST_MODE` must be `false`** in the real `.env`: it removes every rate limit.
 - The first Laravel cache build after a deploy happens in `deploy.sh` (`config:cache`, `route:cache`, `view:cache`, `event:cache`).
+
+## Go-live checklist
+
+Tick these off in order; each is something that would silently not work if missed.
+
+1. **Mail works.** `MAIL_*` set to a real provider; request a sign-in link for yourself and receive it. (`MAIL_MAILER=log` sends nothing.)
+2. **Queue worker is running.** `supervisorctl status` shows `nailpolish-worker`; a sign-in email actually arrives. Without it no one can sign in.
+3. **Scheduler cron is installed** (`schedule:run` every minute): old sign-in links, invites and import previews are cleared by it.
+4. **`.env` is production**: `APP_ENV=production`, `APP_DEBUG=false`, `DB_PERSISTENT=true`, `LOAD_TEST_MODE=false`, `APP_URL` is the real https address. Then `php artisan config:cache route:cache view:cache event:cache`.
+5. **You are the Admin**: `ADMIN_EMAIL` is yours; sign in, open `/admin`.
+6. **Seed the lists**: `php artisan db:seed --force` (colour families and finishes). Optionally `--class=FeaturedGallerySeeder` for the sample photos.
+7. **HTTPS and headers**: certbot certificate installed; `curl -sI https://your-site/photos/<id>/thumb` still shows the security headers.
+8. **Photos are cached by nginx**: run `load/check-photo-cache.sh https://your-site`; repeats show `HIT`, no cookie.
+9. **Uploads work end to end**: upload a 10 MB photo from your phone (this exercises nginx's and PHP's size limits).
+10. **PHP-FPM has OPcache on** (`php -i | grep opcache.enable`) and the pool size fits the droplet (see Sizing).
+11. **Backups exist and have been restored once** (database dump + `storage/app/private/photos`).
+12. **Load-tested on this droplet** from a second machine (`load/README.md`), then `drop schema loadtest cascade`, and `LOAD_TEST_MODE` is `false` again. `/health` must not show a `warning`.
+13. **Invite people**: Admin → Invite requests / invite codes. The first 100 self-sign-ups need no code.
