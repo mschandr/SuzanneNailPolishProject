@@ -52,7 +52,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // Relative on purpose: an absolute link built from APP_URL is a broken image whenever the site is opened on a
+            // different address than the one in .env (a dev machine's http://localhost:8000, a second hostname, a staging copy).
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

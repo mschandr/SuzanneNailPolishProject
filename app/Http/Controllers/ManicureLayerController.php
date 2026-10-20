@@ -49,7 +49,8 @@ class ManicureLayerController extends Controller
         $layers = $manicure->layers()->where('target', $target)->with('polish.brand')->get();
 
         // Per-nail mode: how many layers each nail has, for the nail picker. The whole-hand list can be copied from.
-        $counts = $manicure->layers()->selectRaw('target, count(*) as n')->groupBy('target')->pluck('n', 'target');
+        // reorder(): layers() sorts by position, which Postgres rejects together with GROUP BY.
+        $counts = $manicure->layers()->reorder()->selectRaw('target, count(*) as n')->groupBy('target')->pluck('n', 'target');
         $handCount = (int) ($counts[ManicurePolish::HAND] ?? 0);
         $nailCounts = $counts->except(ManicurePolish::HAND);
 

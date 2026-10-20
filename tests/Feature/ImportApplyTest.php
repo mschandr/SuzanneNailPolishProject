@@ -375,4 +375,15 @@ class ImportApplyTest extends TestCase
         $this->assertSame(1, Brand::where('name_key', 'shiny brand')->count());
         $this->assertSame(1, Polish::count());
     }
+
+    public function test_uploaded_swatch_links_are_relative_so_they_work_whatever_address_the_site_is_opened_on(): void
+    {
+        // APP_URL is often http://localhost:8000 on a dev machine; an absolute link to it is a broken image elsewhere.
+        config(['app.url' => 'http://localhost:8000']);
+        $polish = $this->polish('B', 'Pretty');
+        $polish->forceFill(['swatch_path' => 'swatches/pretty.svg'])->save();
+
+        $this->assertSame('/storage/swatches/pretty.svg', $polish->fresh()->swatchSrc());
+        $this->get($polish->fresh('brand')->url())->assertSee('src="/storage/swatches/pretty.svg"', false)->assertDontSee('localhost:8000', false);
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\Manicure;
 use App\Models\Polish;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\BuildsGalleryData;
 use Tests\Support\TestImages;
@@ -512,5 +513,27 @@ class ManicureNailsTest extends TestCase
         $this->mode('nails');
         $this->actingAs($this->me)->get("/manicures/{$this->manicure->id}/polishes")
             ->assertSee('action="/manicures/'.$this->manicure->id.'/polishes/copy-to-nails"', false);
+    }
+
+    public function test_the_labelling_page_never_groups_a_query_that_also_has_an_order_by(): void
+    {
+        // Postgres rejects "ORDER BY position" together with "GROUP BY target" (SQLite, which the tests use, accepts it),
+        // and the layers() relation orders by position by default. This guards that cause, because the symptom (a 500
+        // on the labelling page) can only be seen on Postgres.
+        $this->add($this->p('Hand Polish'));
+        $this->mode('nails');
+        $this->add($this->p('Ring Polish'), 'left_ring');
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        foreach (['hand', 'nails'] as $mode) {
+            $this->mode($mode);
+            $this->actingAs($this->me)->get("/manicures/{$this->manicure->id}/polishes?nail=left_ring")->assertOk();
+        }
+        $queries = collect(DB::getQueryLog())->pluck('query');
+        DB::disableQueryLog();
+
+        $offenders = $queries->filter(fn ($q) => str_contains(strtolower($q), 'group by') && str_contains(strtolower($q), 'order by'));
+        $this->assertSame([], $offenders->values()->all(), 'a query groups and orders together: Postgres will refuse it');
     }
 }

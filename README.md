@@ -38,8 +38,9 @@ Sign in with the `ADMIN_EMAIL` address to become the Admin.
 php artisan test
 ```
 
-The suite runs on in-memory SQLite and a cache that serializes values like production's. SQLite is not Postgres, so
-`load/profile.php` and the checks described in `load/README.md` also exist for the real database.
+The suite runs on in-memory SQLite and a cache that serializes values like production's. SQLite accepts SQL that
+Postgres rejects, so **also run it on real Postgres** before a release: `tests/run-on-postgres.sh` does that in an
+isolated schema (your data is untouched). `load/profile.php` and `load/README.md` cover performance on the real database.
 
 ## Putting it on a server
 
