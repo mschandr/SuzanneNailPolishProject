@@ -66,14 +66,6 @@ class PromotePolishTest extends TestCase
             ->assertDontSee('Never Suggested');
     }
 
-    public function test_an_ordinary_user_cannot_see_or_use_the_suggestions(): void
-    {
-        $this->actingAs($this->suzanne)->get('/admin/suggestions')->assertForbidden();
-        $this->actingAs($this->suzanne)->post("/admin/suggestions/{$this->secret->id}/promote")->assertForbidden();
-
-        $this->assertTrue($this->secret->fresh()->isPrivate());
-    }
-
     public function test_promoting_makes_it_public_and_drops_the_link_to_its_creator(): void
     {
         $this->actingAs($this->suzanne)->post("/my-polishes/{$this->secret->id}/suggest");

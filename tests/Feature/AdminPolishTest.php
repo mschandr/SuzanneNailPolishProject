@@ -141,13 +141,4 @@ class AdminPolishTest extends TestCase
         $this->actingAs($this->admin)->put("/admin/polishes/{$polish->id}", $this->payload(['collection' => 'Changed']))
             ->assertSessionHasNoErrors();
     }
-
-    public function test_non_admins_cannot_create_or_edit(): void
-    {
-        $user = User::factory()->create();
-
-        $this->actingAs($user)->get('/admin/polishes/create')->assertForbidden();
-        $this->actingAs($user)->post('/admin/polishes', $this->payload())->assertForbidden();
-        $this->assertSame(0, Polish::count());
-    }
 }

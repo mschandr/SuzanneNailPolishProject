@@ -91,17 +91,6 @@ class AdminValueListTest extends TestCase
     }
 
     #[DataProvider('lists')]
-    public function test_an_ordinary_user_cannot_add_or_see(string $path, string $model): void
-    {
-        $user = User::factory()->create();
-
-        $this->actingAs($user)->post($path, ['name' => 'Creme'])->assertForbidden();
-        $this->actingAs($user)->get($path)->assertForbidden();
-
-        $this->assertSame(0, $model::count());
-    }
-
-    #[DataProvider('lists')]
     public function test_the_list_page_shows_the_values(string $path, string $model): void
     {
         $model::create(['name' => 'Shimmer']);

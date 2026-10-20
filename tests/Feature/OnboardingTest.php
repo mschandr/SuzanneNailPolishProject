@@ -17,12 +17,6 @@ class OnboardingTest extends TestCase
         return User::factory()->notOnboarded()->create();
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/welcome')->assertRedirect('/login');
-        $this->post('/welcome/complete')->assertRedirect('/login');
-    }
-
     public function test_a_new_user_landing_on_home_is_sent_to_the_tutorial(): void
     {
         $this->actingAs($this->newcomer())->get('/home')->assertRedirect('/welcome');

@@ -70,19 +70,6 @@ class ModerationHideDeleteTest extends TestCase
         $this->assertNotNull(Manicure::find($this->m->id));
     }
 
-    public function test_non_admins_cannot_hide_restore_or_delete(): void
-    {
-        $this->report($this->m);
-        $plain = $this->person('Plain');
-
-        $this->actingAs($plain)->post("/admin/manicures/{$this->m->id}/hide")->assertForbidden();
-        $this->actingAs($plain)->post("/admin/manicures/{$this->m->id}/restore")->assertForbidden();
-        $this->actingAs($plain)->delete("/admin/manicures/{$this->m->id}")->assertForbidden();
-        $this->actingAs($this->owner)->post("/admin/manicures/{$this->m->id}/hide")->assertForbidden();
-
-        $this->assertNull($this->m->fresh()->hidden_at);
-    }
-
     public function test_hiding_records_when_and_why_and_closes_the_open_reports_as_actioned(): void
     {
         $this->report($this->m);

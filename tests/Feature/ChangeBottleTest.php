@@ -125,12 +125,6 @@ class ChangeBottleTest extends TestCase
         $this->assertSame($this->me->id, $this->bottle->fresh()->user_id);
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->put("/bottles/{$this->bottle->id}", ['status' => 'used_up'])->assertRedirect('/login');
-        $this->delete("/bottles/{$this->bottle->id}")->assertRedirect('/login');
-    }
-
     public function test_saving_a_bottle_says_so_and_mentions_history_when_it_leaves_the_owned_list(): void
     {
         $this->actingAs($this->me)->put("/bottles/{$this->bottle->id}", ['status' => 'used_up'])

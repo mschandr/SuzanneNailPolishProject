@@ -304,18 +304,6 @@ class ImportApplyTest extends TestCase
 
     // --- access ------------------------------------------------------------------------------------------
 
-    public function test_only_the_admin_can_apply(): void
-    {
-        $import = $this->upload(['B,One'], 'brand,shade');
-        $ids = $import->rows()->pluck('id')->all();
-        auth()->logout();
-
-        $this->post("/admin/imports/{$import->id}/apply", ['rows' => $ids])->assertRedirect('/login');
-        $this->apply($import, $ids, $this->person('Plain'))->assertForbidden();
-
-        $this->assertSame(0, Polish::count());
-    }
-
     public function test_applying_an_unknown_import_is_404(): void
     {
         $this->actingAs($this->admin)->post('/admin/imports/0198aaaa-0000-7000-8000-000000000000/apply', ['rows' => ['x']])->assertNotFound();

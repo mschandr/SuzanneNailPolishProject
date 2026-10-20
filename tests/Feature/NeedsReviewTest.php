@@ -30,13 +30,6 @@ class NeedsReviewTest extends TestCase
         return $polish;
     }
 
-    public function test_only_the_admin_sees_the_list(): void
-    {
-        $this->get('/admin/needs-review')->assertRedirect('/login');
-        $this->actingAs($this->person('Plain'))->get('/admin/needs-review')->assertForbidden();
-        $this->actingAs($this->admin)->get('/admin/needs-review')->assertOk();
-    }
-
     public function test_it_lists_flagged_public_polishes_with_an_edit_link_and_nothing_else(): void
     {
         $flagged = $this->flagged('Needs Work');

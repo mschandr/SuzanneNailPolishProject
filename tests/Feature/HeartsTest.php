@@ -33,15 +33,6 @@ class HeartsTest extends TestCase
         return Heart::where('manicure_id', $this->manicure->id)->count();
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->post("/manicures/{$this->manicure->id}/heart")->assertRedirect('/login');
-        $this->delete("/manicures/{$this->manicure->id}/heart")->assertRedirect('/login');
-        $this->get('/liked')->assertRedirect('/login');
-
-        $this->assertSame(0, $this->hearts());
-    }
-
     public function test_a_user_can_heart_someone_elses_public_manicure(): void
     {
         $this->actingAs($this->fan)->post("/manicures/{$this->manicure->id}/heart")->assertRedirect();

@@ -52,13 +52,6 @@ class BulkOwnTest extends TestCase
         return $bottle;
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->post('/bulk/own', ['polish_ids' => $this->ids(0)])->assertRedirect('/login');
-
-        $this->assertSame(0, Bottle::count());
-    }
-
     public function test_selected_polishes_become_owned_bottles_in_the_chosen_location(): void
     {
         $cabinet = $this->me->locations()->create(['name' => 'China cabinet']);

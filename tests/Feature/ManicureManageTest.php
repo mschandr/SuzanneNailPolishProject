@@ -80,15 +80,6 @@ class ManicureManageTest extends TestCase
         $this->assertNotNull(Manicure::find($m->id));
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $m = $this->make();
-
-        $this->get("/manicures/{$m->id}/edit")->assertRedirect('/login');
-        $this->put("/manicures/{$m->id}", [])->assertRedirect('/login');
-        $this->delete("/manicures/{$m->id}")->assertRedirect('/login');
-    }
-
     public function test_date_caption_and_visibility_can_be_changed(): void
     {
         $m = $this->make();

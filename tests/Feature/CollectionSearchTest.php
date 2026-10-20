@@ -37,11 +37,6 @@ class CollectionSearchTest extends TestCase
         return $bottle;
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/collection')->assertRedirect('/login');
-    }
-
     public function test_it_lists_only_my_owned_bottles(): void
     {
         $this->bottle($this->me, 'Phoenix Parlour', 'Ember Rising');

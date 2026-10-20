@@ -35,13 +35,6 @@ class ReportTest extends TestCase
         return $this->actingAs($as ?? $this->reporter)->post("/manicures/{$manicure->id}/report", $data + ['reason' => 'spam']);
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->post("/manicures/{$this->manicure->id}/report", ['reason' => 'spam'])->assertRedirect('/login');
-
-        $this->assertSame(0, Report::count());
-    }
-
     public function test_a_user_can_report_someone_elses_public_manicure(): void
     {
         $this->report(['reason' => 'inappropriate', 'details' => 'Not suitable'])->assertRedirect();

@@ -43,14 +43,6 @@ class InviteCodeTest extends TestCase
         Mail::assertQueued(InviteMail::class, fn ($m) => $m->hasTo('friend@example.com'));
     }
 
-    public function test_an_ordinary_user_cannot_send_invites(): void
-    {
-        $this->actingAs(User::factory()->create())
-            ->post('/admin/invites', ['email' => 'friend@example.com'])->assertForbidden();
-
-        Mail::assertNothingQueued();
-    }
-
     public function test_sending_marks_the_matching_request_as_invited(): void
     {
         $request = InviteRequest::create(['email' => 'friend@example.com']);

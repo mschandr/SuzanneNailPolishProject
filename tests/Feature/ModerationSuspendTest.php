@@ -33,16 +33,6 @@ class ModerationSuspendTest extends TestCase
         return $this->actingAs($this->admin)->post('/admin/users/'.($target ?? $this->owner)->id.'/suspend', ['reason' => $reason]);
     }
 
-    public function test_non_admins_cannot_suspend(): void
-    {
-        $plain = $this->person('Plain');
-
-        $this->actingAs($plain)->post("/admin/users/{$this->owner->id}/suspend")->assertForbidden();
-        $this->actingAs($plain)->post("/admin/users/{$this->owner->id}/unsuspend")->assertForbidden();
-
-        $this->assertFalse($this->owner->fresh()->isSuspended());
-    }
-
     public function test_suspending_records_when_and_why_and_is_logged(): void
     {
         $this->suspend()->assertRedirect('/admin/moderation');

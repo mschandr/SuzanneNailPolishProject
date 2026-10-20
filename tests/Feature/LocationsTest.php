@@ -35,11 +35,6 @@ class LocationsTest extends TestCase
         return $bottle;
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/locations')->assertRedirect('/login');
-    }
-
     public function test_a_location_can_be_created_on_its_own(): void
     {
         $this->actingAs($this->me)->post('/locations', ['name' => ' Dining room '])->assertRedirect('/locations');

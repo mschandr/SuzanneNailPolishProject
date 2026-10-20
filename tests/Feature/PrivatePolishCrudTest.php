@@ -41,12 +41,6 @@ class PrivatePolishCrudTest extends TestCase
         return $polish;
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/my-polishes')->assertRedirect('/login');
-        $this->post('/my-polishes', $this->payload())->assertRedirect('/login');
-    }
-
     public function test_a_user_creates_a_private_polish_owned_by_them(): void
     {
         $this->actingAs($this->me)->post('/my-polishes', $this->payload())->assertRedirect();

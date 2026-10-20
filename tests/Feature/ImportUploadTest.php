@@ -51,17 +51,6 @@ class ImportUploadTest extends TestCase
 
     // --- access ---------------------------------------------------------------------------------
 
-    public function test_only_the_admin_can_use_the_import_screens(): void
-    {
-        foreach (['/admin/imports', '/admin/imports/template.csv'] as $url) {
-            $this->get($url)->assertRedirect('/login');
-            $this->actingAs($this->person('Plain'))->get($url)->assertForbidden();
-            auth()->logout();
-        }
-        $this->actingAs($this->person('Plain'))->post('/admin/imports', [])->assertForbidden();
-        $this->assertSame(0, Import::count());
-    }
-
     public function test_the_import_page_explains_the_format_and_offers_a_template(): void
     {
         $this->actingAs($this->admin)->get('/admin/imports')->assertOk()

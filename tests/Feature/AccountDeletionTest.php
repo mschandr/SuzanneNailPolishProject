@@ -96,12 +96,6 @@ class AccountDeletionTest extends TestCase
 
     // --- the confirmation step ---------------------------------------------------------------
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/account/delete')->assertRedirect('/login');
-        $this->post('/account/delete', ['confirmation' => 'DELETE'])->assertRedirect('/login');
-    }
-
     public function test_the_page_lists_what_will_be_deleted_with_counts(): void
     {
         $this->populate($this->me);

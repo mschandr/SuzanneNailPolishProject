@@ -151,7 +151,7 @@ Route::middleware('auth')->group(function () {
             Route::post('/invites', [InviteController::class, 'store']);
             Route::get('/users', [AdminUserController::class, 'index']);
             Route::post('/users', [AdminUserController::class, 'store']);
-            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->whereUuid('user');
+            Route::delete('/users/{id}', [AdminUserController::class, 'destroy'])->whereUuid('id');
 
             foreach (['finishes', 'color-families'] as $list) {
                 Route::get("/{$list}", [ValueListController::class, 'index'])->defaults('list', $list);

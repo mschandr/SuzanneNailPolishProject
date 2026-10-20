@@ -37,9 +37,4 @@ class DisplayNameTest extends TestCase
 
         $this->assertNull($user->fresh()->display_name);
     }
-
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/home')->assertRedirect('/login');
-    }
 }

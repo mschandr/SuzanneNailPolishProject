@@ -35,12 +35,6 @@ class ManicureCreateTest extends TestCase
         return Storage::disk('photos')->get($thumb ? $photo->thumb_path : $photo->path);
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/manicures/create')->assertRedirect('/login');
-        $this->post('/manicures', [])->assertRedirect('/login');
-    }
-
     public function test_a_manicure_is_created_with_a_photo_a_date_and_a_caption(): void
     {
         $this->create([

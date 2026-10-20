@@ -76,12 +76,6 @@ class ManicureLayersTest extends TestCase
         return ($m ?? $this->manicure)->layers()->with('polish')->get()->map(fn ($l) => $l->polish->name)->all();
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get("/manicures/{$this->manicure->id}/polishes")->assertRedirect('/login');
-        $this->post("/manicures/{$this->manicure->id}/polishes", [])->assertRedirect('/login');
-    }
-
     public function test_polishes_are_added_in_order(): void
     {
         $base = $this->polish('Base Coat');

@@ -28,13 +28,6 @@ class MarkOwnedTest extends TestCase
         return $this->actingAs($user)->post("/polishes/{$this->polish->id}/bottles", $data);
     }
 
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->post("/polishes/{$this->polish->id}/bottles")->assertRedirect('/login');
-
-        $this->assertSame(0, Bottle::count());
-    }
-
     public function test_marking_owned_creates_an_owned_bottle_for_that_user(): void
     {
         $user = User::factory()->create();

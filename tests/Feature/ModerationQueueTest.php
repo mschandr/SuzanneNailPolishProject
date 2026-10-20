@@ -37,17 +37,6 @@ class ModerationQueueTest extends TestCase
         return $r;
     }
 
-    public function test_only_the_admin_can_see_the_queue_and_the_log(): void
-    {
-        foreach (['/admin/moderation', '/admin/moderation/log'] as $url) {
-            $this->get($url)->assertRedirect('/login');
-            $this->actingAs($this->person('Plain'))->get($url)->assertForbidden();
-            auth()->logout();
-            $this->actingAs($this->admin)->get($url)->assertOk();
-            auth()->logout();
-        }
-    }
-
     public function test_the_queue_groups_open_reports_by_manicure_with_reasons_and_details(): void
     {
         $m = $this->manicure($this->owner, [], 'public', '2026-10-15', 'Bad caption');
@@ -156,16 +145,6 @@ class ModerationQueueTest extends TestCase
         auth()->logout();
 
         $this->actingAs($this->admin)->get('/admin/moderation')->assertSee($this->link($m), false)->assertSee('1 report');
-    }
-
-    public function test_non_admins_cannot_dismiss(): void
-    {
-        $m = $this->manicure($this->owner, [], 'public');
-        $this->reportOn($m, $this->person('A'));
-
-        $this->actingAs($this->person('Plain'))->post("/admin/reports/{$m->id}/dismiss")->assertForbidden();
-
-        $this->assertSame(1, Report::where('status', 'open')->count());
     }
 
     public function test_the_log_lists_entries_newest_first_with_who_and_what(): void

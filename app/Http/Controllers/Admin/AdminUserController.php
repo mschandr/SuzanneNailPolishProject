@@ -29,8 +29,12 @@ class AdminUserController extends Controller
         return redirect('/admin/users');
     }
 
-    public function destroy(Request $request, User $user)
+    // Looked up by hand, not route-model bound: binding runs before the admin check, so a non-admin
+    // would get 404 vs 403 and could tell which user ids exist.
+    public function destroy(Request $request, string $id)
     {
+        $user = User::findOrFail($id);
+
         if ($user->is($request->user())) {
             return back()->withErrors(['user' => 'You cannot remove your own Admin role.']);
         }

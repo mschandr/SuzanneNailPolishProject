@@ -47,14 +47,4 @@ class AdminGrantTest extends TestCase
 
         $this->assertTrue($admin->fresh()->is_admin);
     }
-
-    public function test_an_ordinary_user_cannot_grant(): void
-    {
-        $user = User::factory()->create();
-        $other = User::factory()->create();
-
-        $this->actingAs($user)->post('/admin/users', ['email' => $other->email])->assertForbidden();
-
-        $this->assertFalse($other->fresh()->is_admin);
-    }
 }

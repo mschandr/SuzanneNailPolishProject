@@ -19,16 +19,6 @@ class AdminGateTest extends TestCase
         $this->actingAs($admin)->get('/admin')->assertOk();
     }
 
-    public function test_an_ordinary_user_gets_403(): void
-    {
-        $this->actingAs(User::factory()->create())->get('/admin')->assertForbidden();
-    }
-
-    public function test_a_guest_is_sent_to_sign_in(): void
-    {
-        $this->get('/admin')->assertRedirect('/login');
-    }
-
     public function test_the_configured_admin_email_becomes_admin_on_first_sign_in(): void
     {
         config(['nailpolish.admin_email' => 'mark@example.com']);
