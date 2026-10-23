@@ -3,7 +3,7 @@
 @section('title', $brand->name)
 
 @section('content')
-    <p><a href="/catalog">All brands</a></p>
+    <p class="breadcrumb"><a href="/catalog">All brands</a></p>
     <h1>{{ $brand->name }}</h1>
 
     @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
@@ -12,37 +12,50 @@
     @error('new_location')<p role="alert">{{ $message }}</p>@enderror
 
     {{-- Signed-in users can tick several polishes and add them to their collection in one go. --}}
-    @if ($locations !== null)<form method="post" action="/bulk/own" id="bulk">@csrf</form>@endif
+    @if ($locations !== null)
+        <form method="post" action="/bulk/own" id="bulk">@csrf</form>
+        <p class="muted">Tick the polishes you own, then use the bar at the bottom to add them.</p>
+    @endif
 
-    <ul style="list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(8rem,1fr));gap:1rem">
+    <ul class="tiles">
         @foreach ($polishes as $polish)
-            <li>
+            <li class="tile">
                 @if ($locations !== null && ! $ownedIds->has($polish->id))
-                    <label style="display:block"><input type="checkbox" name="polish_ids[]" value="{{ $polish->id }}" form="bulk" @checked(in_array($polish->id, old('polish_ids', [])))> Select</label>
+                    <label class="pick"><input type="checkbox" name="polish_ids[]" value="{{ $polish->id }}" form="bulk" @checked(in_array($polish->id, old('polish_ids', []))) aria-label="Select {{ $polish->name }}"></label>
                 @endif
                 <a href="{{ $polish->url() }}">
                     @if ($src = $polish->swatchSrc())
-                        <img src="{{ $src }}" alt="{{ $polish->name }}" loading="lazy" referrerpolicy="no-referrer" style="width:100%;aspect-ratio:1;object-fit:cover">
+                        <img src="{{ $src }}" alt="" width="200" height="200" loading="lazy" referrerpolicy="no-referrer">
+                    @else
+                        <span class="noimg" aria-hidden="true">No photo</span>
                     @endif
-                    <div>{{ $polish->name }}</div>
-                    @if ($ownedIds->has($polish->id))<div data-owned><strong>✓ Owned</strong></div>@endif
+                    <span class="caption">{{ $polish->name }}
+                        @if ($ownedIds->has($polish->id))<small data-owned><strong>✓ Owned</strong></small>@endif
+                    </span>
                 </a>
             </li>
         @endforeach
     </ul>
 
     @if ($locations !== null)
-        <div style="position:sticky;bottom:0;background:#fff;border-top:1px solid #ddd;padding:.75rem 0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:end">
-            <button type="button" onclick="document.querySelectorAll('input[name=&quot;polish_ids[]&quot;]').forEach(c => c.checked = true)">Select all on this page</button>
-            <label>Location
-                <select name="location_id" form="bulk">
-                    <option value="">No location</option>
-                    @foreach ($locations as $location)
-                        <option value="{{ $location->id }}">{{ $location->name }}</option>
-                    @endforeach
-                </select></label>
-            <label>or new <input name="new_location" form="bulk" maxlength="100" value="{{ old('new_location') }}"></label>
-            <button form="bulk">Add selected to my collection</button>
+        <div class="action-bar" id="bulk-bar">
+            <div class="form-row">
+                <button type="button" id="select-all" class="btn-sm">Select all on this page</button>
+                <div class="field">
+                    <label for="bulk-location">Location</label>
+                    <select id="bulk-location" name="location_id" form="bulk">
+                        <option value="">No location</option>
+                        @foreach ($locations as $location)
+                            <option value="{{ $location->id }}">{{ $location->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="bulk-new-location">or a new one</label>
+                    <input id="bulk-new-location" name="new_location" form="bulk" maxlength="100" value="{{ old('new_location') }}">
+                </div>
+                <button form="bulk" class="btn-primary">Add selected to my collection <span data-count></span></button>
+            </div>
         </div>
     @endif
 

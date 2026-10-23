@@ -4,8 +4,9 @@
 
 @section('content')
     @php($label = ['new' => 'New', 'exists' => 'Already in the Catalog', 'duplicate' => 'Duplicate', 'invalid' => 'Problem', 'added' => 'Added', 'skipped' => 'Skipped'])
-    <p><a href="/admin/imports">All imports</a></p>
+    <p class="breadcrumb"><a href="/admin/imports">All imports</a></p>
     <h1>{{ $import->filename }}</h1>
+    @include('admin._nav')
     @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
     @error('rows')<p role="alert">{{ $message }}</p>@enderror
 
@@ -30,8 +31,8 @@
     <form method="post" action="/admin/imports/{{ $import->id }}/apply" id="apply">@csrf</form>
     @endif
 
-    <table>
-        <thead><tr><th></th><th>Line</th><th>Brand</th><th>Shade</th><th>Details</th><th>Result</th></tr></thead>
+    <div class="table-wrap"><table>
+        <thead><tr><th><span class="sr-only">Add</span></th><th>Line</th><th>Brand</th><th>Shade</th><th>Details</th><th>Result</th></tr></thead>
         <tbody>
         @foreach ($rows as $row)
             <tr>
@@ -44,13 +45,13 @@
             </tr>
         @endforeach
         </tbody>
-    </table>
+    </table></div>
 
     @if ($import->status === 'preview')
         <p>
-            <button type="button" onclick="document.querySelectorAll('input[name=&quot;rows[]&quot;]').forEach(c => c.checked = true)">Tick all</button>
-            <button type="button" onclick="document.querySelectorAll('input[name=&quot;rows[]&quot;]').forEach(c => c.checked = false)">Tick none</button>
-            <button form="apply">Add the ticked polishes to the Catalog</button>
+            <button type="button" class="btn-sm" onclick="document.querySelectorAll('input[name=&quot;rows[]&quot;]').forEach(c => c.checked = true)">Tick all</button>
+            <button type="button" class="btn-sm" onclick="document.querySelectorAll('input[name=&quot;rows[]&quot;]').forEach(c => c.checked = false)">Tick none</button>
+            <button form="apply" class="btn-primary">Add the ticked polishes to the Catalog</button>
         </p>
     @endif
 @endsection

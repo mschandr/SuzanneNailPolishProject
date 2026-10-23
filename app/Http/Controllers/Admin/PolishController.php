@@ -97,7 +97,7 @@ class PolishController extends Controller
                 $polish->swatch_path = $request->file('swatch')->store('swatches', 'public');
             }
 
-            // The form requires a colour family but not a finish: a polish an import flagged stays flagged until it has
+            // The form requires a color family but not a finish: a polish an import flagged stays flagged until it has
             // both. (One the Admin makes by hand without a finish is not flagged: that was a choice, not a gap.)
             $polish->needs_review = (bool) $polish->needs_review && empty($data['finish_ids']);
 

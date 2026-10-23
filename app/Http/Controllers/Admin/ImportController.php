@@ -173,7 +173,7 @@ class ImportController extends Controller
             $message .= " {$r['skipped']} ".($r['skipped'] === 1 ? 'was' : 'were').' already in the Catalog by the time you confirmed, so '.($r['skipped'] === 1 ? 'it was' : 'they were').' skipped.';
         }
         if ($r['review'] > 0) {
-            $message .= " {$r['review']} ".($r['review'] === 1 ? 'needs' : 'need').' review (missing a colour family or finish).';
+            $message .= " {$r['review']} ".($r['review'] === 1 ? 'needs' : 'need').' review (missing a color family or finish).';
         }
 
         return $message;

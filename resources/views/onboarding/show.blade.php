@@ -3,22 +3,24 @@
 @section('title', 'Welcome')
 
 @section('content')
-    <p>Step {{ $step }} of {{ $total }}</p>
-    <h1>{{ $content['title'] }}</h1>
-    <p>{{ $content['body'] }}</p>
-    <p><a href="{{ $content['link'] }}">{{ $content['cta'] }}</a></p>
+    <div class="form-card">
+        <p class="muted">Step {{ $step }} of {{ $total }}</p>
+        <h1>{{ $content['title'] }}</h1>
+        <p>{{ $content['body'] }}</p>
+        <p><a class="btn btn-primary" href="{{ $content['link'] }}">{{ $content['cta'] }}</a></p>
 
-    <nav style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
-        @if ($step > 1)<a href="/welcome?step={{ $step - 1 }}">Back</a>@endif
+        <nav class="actions" aria-label="Tour steps">
+            @if ($step > 1)<a class="btn" href="/welcome?step={{ $step - 1 }}">Back</a>@endif
+            @if ($step < $total)
+                <a class="btn" href="/welcome?step={{ $step + 1 }}">Next</a>
+            @else
+                <form method="post" action="/welcome/complete" class="inline">@csrf<button class="btn-primary">Finish</button></form>
+            @endif
+        </nav>
+
         @if ($step < $total)
-            <a href="/welcome?step={{ $step + 1 }}">Next</a>
-        @else
-            <form method="post" action="/welcome/complete" style="display:inline">@csrf<button>Finish</button></form>
+            <form method="post" action="/welcome/complete" class="mt-md">@csrf<button class="btn-link">Skip the tour</button></form>
         @endif
-    </nav>
-
-    @if ($step < $total)
-        <form method="post" action="/welcome/complete" style="margin-top:1rem">@csrf<button>Skip the tour</button></form>
-    @endif
-    <p><small>You can come back to this any time from Help.</small></p>
+        <p><small>You can come back to this any time from Help.</small></p>
+    </div>
 @endsection

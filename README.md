@@ -3,12 +3,12 @@
 A multi-user web app for keeping track of the nail polishes you own and where they are, and for sharing photos of the
 manicures you wear them in.
 
-- **Catalog**: a public list of polishes (brand, shade, finish, colour family), built by the Admin by hand, by CSV import,
+- **Catalog**: a public list of polishes (brand, shade, finish, color family), built by the Admin by hand, by CSV import,
   and by promoting polishes users add privately.
 - **Collection**: mark the polishes you own, with the place each one is kept; tick many at once; search "do I own this?"
   from your phone in a shop. Shades the Catalog doesn't have can be added as private polishes.
 - **Manicures and the Gallery**: upload photos (metadata stripped, private by choice), list the polishes worn (for the
-  whole hand or nail by nail), and browse and heart other people's, filtered by polish, brand, finish or colour.
+  whole hand or nail by nail), and browse and heart other people's, filtered by polish, brand, finish or color.
 - **Admin**: import polishes, review reports, hide or delete Manicures, suspend users, send invite codes.
 - Sign-in is by emailed link. The first 100 people can sign up themselves; after that it's by invitation.
 
@@ -21,7 +21,7 @@ composer install
 cp .env.example .env && php artisan key:generate
 # create a Postgres database, put its details in .env (and set ADMIN_EMAIL to your own address), then:
 php artisan migrate
-php artisan db:seed                                   # colour families and finishes
+php artisan db:seed                                   # color families and finishes
 php artisan db:seed --class=MythicalCatalogSeeder     # optional: 10 made-up polishes to play with
 php artisan db:seed --class=FeaturedGallerySeeder     # optional: two openly licensed sample photos
 php artisan storage:link
@@ -55,3 +55,5 @@ isolated schema (your data is untouched). `load/profile.php` and `load/README.md
 - Reading product data from Vendors' websites. Their terms forbid it, so polishes come in by CSV
   (`/admin/imports`). Discontinued and Watchlist checks would need a Vendor's written permission.
 - Wishlists, comments and followers (deliberately left out for now).
+
+Styles live in `public/css/site.css` and the little script in `public/js/app.js`: hand-written, no build step, so a deploy never needs Node.

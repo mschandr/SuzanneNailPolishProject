@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Paginator::defaultView('pagination.site');
+
         // Every limiter goes through limits() so LOAD_TEST_MODE can lift them all in one place.
         RateLimiter::for('magic-link', fn (Request $request) => $this->limits([
             Limit::perMinute(5)->by('ip:'.$request->ip()),

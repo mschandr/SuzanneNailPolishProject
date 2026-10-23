@@ -3,7 +3,8 @@
 @section('title', 'Manicure by '.$manicure->user->display_name)
 
 @section('content')
-    <p><a href="/people/{{ $manicure->user_id }}">{{ $manicure->user->display_name }}</a> · {{ $manicure->worn_on->toFormattedDateString() }}
+    <h1 class="sr-only">Manicure by {{ $manicure->user->display_name }}</h1>
+    <p class="meta mt-md"><a href="/people/{{ $manicure->user_id }}">{{ $manicure->user->display_name }}</a> · {{ $manicure->worn_on->toFormattedDateString() }}
         @if ($isOwner)· {{ $manicure->hidden_at ? 'Hidden by a moderator' : ($manicure->isPublic() ? 'Public' : 'Only you') }}@endif</p>
     @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
     @if ($manicure->hidden_at && ($isOwner || auth()->user()?->is_admin))
@@ -13,9 +14,9 @@
     @endif
     @if ($manicure->caption)<p>{{ $manicure->caption }}</p>@endif
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.5rem">
+    <div class="photos">
         @foreach ($manicure->photos as $photo)
-            <img src="/photos/{{ $photo->id }}/full?v={{ $photo->updated_at->timestamp }}" alt="Manicure photo {{ $loop->iteration }}" style="width:100%;height:auto">
+            <img src="/photos/{{ $photo->id }}/full?v={{ $photo->updated_at->timestamp }}" alt="Manicure photo {{ $loop->iteration }}">
         @endforeach
     </div>
     @if ($manicure->credit)
@@ -27,20 +28,20 @@
             @endif</small></p>
     @endif
 
-    <p>
-        {{ $heartCount }} {{ Str::plural('heart', $heartCount) }}
+    <div class="heart-bar">
+        <span class="heart-count">♥ {{ $heartCount }} {{ Str::plural('heart', $heartCount) }}</span>
         @auth
             @unless ($isOwner)
                 @if ($hearted)
-                    <form method="post" action="/manicures/{{ $manicure->id }}/heart" style="display:inline">@csrf @method('delete')<button>Remove heart</button></form>
+                    <form method="post" action="/manicures/{{ $manicure->id }}/heart" class="inline">@csrf @method('delete')<button class="btn-sm">♥ Remove heart</button></form>
                 @else
-                    <form method="post" action="/manicures/{{ $manicure->id }}/heart" style="display:inline">@csrf<button>Heart this</button></form>
+                    <form method="post" action="/manicures/{{ $manicure->id }}/heart" class="inline">@csrf<button class="btn-primary btn-sm">♡ Heart this</button></form>
                 @endif
             @endunless
         @else
-            · <a href="/login">Sign in to heart</a>
+            <a href="/login">Sign in to heart</a>
         @endauth
-    </p>
+    </div>
     @error('heart')<p role="alert">{{ $message }}</p>@enderror
 
     @auth
@@ -48,15 +49,15 @@
             @if ($reported)
                 <p><small>You reported this manicure. Thank you.</small></p>
             @else
-                <details>
+                <details class="card">
                     <summary>Report this manicure</summary>
-                    <form method="post" action="/manicures/{{ $manicure->id }}/report">
+                    <form method="post" action="/manicures/{{ $manicure->id }}/report" class="mt-md">
                         @csrf
-                        <label>Why? <select name="reason" required>
+                        <div class="field"><label for="reason">Why?</label><select id="reason" name="reason" required>
                             @foreach (\App\Models\Report::REASONS as $value => $label)<option value="{{ $value }}">{{ $label }}</option>@endforeach
-                        </select></label>
-                        <label>Details (optional) <textarea name="details" maxlength="1000" rows="3"></textarea></label>
-                        <button>Send report</button>
+                        </select></div>
+                        <div class="field"><label for="details">Details <span class="hint">Optional</span></label><textarea id="details" name="details" maxlength="1000" rows="3"></textarea></div>
+                        <button class="btn-danger">Send report</button>
                     </form>
                 </details>
             @endif
@@ -75,14 +76,19 @@
                 @php($onNail = $active->where('target', $key))
                 @if ($onNail->isNotEmpty())
                     <h3>{{ $label }}</h3>
-                    <ol>@foreach ($onNail as $layer)<li>@include('manicures._layer', ['layer' => $layer])</li>@endforeach</ol>
+                    <ol class="layers">@foreach ($onNail as $layer)<li>@include('manicures._layer', ['layer' => $layer])</li>@endforeach</ol>
                 @endif
             @endforeach
         @else
-            <ol>@foreach ($active as $layer)<li>@include('manicures._layer', ['layer' => $layer])</li>@endforeach</ol>
+            <ol class="layers">@foreach ($active as $layer)<li>@include('manicures._layer', ['layer' => $layer])</li>@endforeach</ol>
         @endif
     @elseif ($isOwner)
         <p>Add the polishes you wore so others can see what it looks like.</p>
     @endif
-    @if ($isOwner)<p><a href="/manicures/{{ $manicure->id }}/polishes">{{ $active->isEmpty() ? 'Add polishes' : 'Edit polishes' }}</a> · <a href="/manicures/{{ $manicure->id }}/edit">Edit</a></p>@endif
+    @if ($isOwner)
+        <div class="actions">
+            <a class="btn btn-primary" href="/manicures/{{ $manicure->id }}/polishes">{{ $active->isEmpty() ? 'Add polishes' : 'Edit polishes' }}</a>
+            <a class="btn" href="/manicures/{{ $manicure->id }}/edit">Edit</a>
+        </div>
+    @endif
 @endsection

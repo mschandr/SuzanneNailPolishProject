@@ -4,9 +4,10 @@
 
 @section('content')
     <h1>Import polishes</h1>
+    @include('admin._nav')
     <p>Add many polishes to the Catalog from a spreadsheet. You'll see a preview and choose what to add; nothing changes until you confirm.</p>
 
-    <p><strong>Only import information you have the right to use.</strong> Many shops' terms forbid copying their product data automatically, and photos belong to whoever took them. Image columns are stored as links and are never copied.</p>
+    <p class="flash flash-warn"><strong>Only import information you have the right to use.</strong> Many shops' terms forbid copying their product data automatically, and photos belong to whoever took them. Image columns are stored as links and are never copied.</p>
 
     <h2>Upload a file</h2>
     <p>A CSV file (in your spreadsheet: <em>Save as CSV UTF-8</em>), up to {{ \App\Models\Import::MAX_ROWS }} rows. The first row names the columns. Only <code>brand</code> and <code>shade</code> are required:</p>
@@ -17,17 +18,20 @@
         <li><strong>vendor_url</strong>: a link to buy it. <strong>image_url</strong>: an https link to a picture.</li>
         <li>Polishes already in the Catalog (same brand and shade) are never changed.</li>
     </ul>
-    <p><a href="/admin/imports/template.csv">Download a template</a></p>
+    <p><a class="btn btn-sm" href="/admin/imports/template.csv">Download a template</a></p>
 
-    <form method="post" action="/admin/imports" enctype="multipart/form-data">
+    <form method="post" action="/admin/imports" enctype="multipart/form-data" class="card" data-busy>
         @csrf
-        <label>File <input type="file" name="file" accept=".csv,text/csv,text/plain" required></label>
+        <div class="field">
+            <label for="file">File</label>
+            <input id="file" type="file" name="file" accept=".csv,text/csv,text/plain" required>
+        </div>
         @error('file')<p role="alert">{{ $message }}</p>@enderror
-        <button>Upload and preview</button>
+        <button class="btn-primary">Upload and preview</button>
     </form>
 
     <h2>Recent imports</h2>
-    <ul>
+    <ul class="list">
         @forelse ($imports as $import)
             <li>
                 <a href="/admin/imports/{{ $import->id }}">{{ $import->filename }}</a>

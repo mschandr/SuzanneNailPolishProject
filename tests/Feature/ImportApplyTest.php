@@ -209,7 +209,7 @@ class ImportApplyTest extends TestCase
         $brand = Brand::firstOrCreate(['name_key' => 'indie co'], ['name' => 'Indie Co']);
         Polish::create(['brand_id' => $brand->id, 'name' => 'Race']); // the Admin added it by hand meanwhile
 
-        $this->apply($import)->assertSessionHas('status', 'Added 1 polish. 1 was already in the Catalog by the time you confirmed, so it was skipped. 1 needs review (missing a colour family or finish).');
+        $this->apply($import)->assertSessionHas('status', 'Added 1 polish. 1 was already in the Catalog by the time you confirmed, so it was skipped. 1 needs review (missing a color family or finish).');
 
         $this->assertSame(2, Polish::count());
     }
@@ -219,7 +219,7 @@ class ImportApplyTest extends TestCase
         $import = $this->upload(['B,One,,Red,Creme', 'B,Two,,Chartreuse,Creme', 'B,Three,,Red,Creme'], 'brand,shade,collection,color_family,finishes');
 
         $this->apply($import, [$this->rowId($import, 'One'), $this->rowId($import, 'Two')])
-            ->assertSessionHas('status', 'Added 2 polishes. 1 needs review (missing a colour family or finish).');
+            ->assertSessionHas('status', 'Added 2 polishes. 1 needs review (missing a color family or finish).');
     }
 
     public function test_the_import_is_marked_applied_with_its_count_and_can_still_be_viewed(): void

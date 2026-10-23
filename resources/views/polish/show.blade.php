@@ -3,12 +3,12 @@
 @section('title', $polish->brand->name.' '.$polish->name)
 
 @section('content')
-    <p><a href="/catalog/{{ $polish->brand->slug }}">{{ $polish->brand->name }}</a></p>
+    <p class="breadcrumb"><a href="/catalog/{{ $polish->brand->slug }}">{{ $polish->brand->name }}</a></p>
     <h1>{{ $polish->name }}</h1>
     @if ($src = $polish->swatchSrc())
-        <img src="{{ $src }}" alt="{{ $polish->name }}" referrerpolicy="no-referrer" style="max-width:100%;width:24rem">
+        <img src="{{ $src }}" alt="{{ $polish->name }}" referrerpolicy="no-referrer" class="swatch-lg" width="400" height="400">
     @endif
-    <dl>
+    <dl class="card">
         <dt>Brand</dt><dd>{{ $polish->brand->name }}</dd>
         @if ($polish->collection)<dt>Collection</dt><dd>{{ $polish->collection }}</dd>@endif
         @if ($polish->colorFamily)<dt>Color family</dt><dd>{{ $polish->colorFamily->name }}</dd>@endif
@@ -17,7 +17,7 @@
         @endif
     </dl>
     @if ($polish->vendor_url)
-        <p><a href="{{ $polish->vendor_url }}" rel="noopener nofollow">Buy from the vendor</a></p>
+        <p><a class="btn" href="{{ $polish->vendor_url }}" rel="noopener nofollow">Buy from the vendor</a></p>
     @endif
     @if ($wornBy->isNotEmpty())
         <section>
@@ -27,38 +27,42 @@
         </section>
     @endif
 
-    <section>
+    <section class="card">
         @if ($bottles === null)
             <p><a href="/login">Sign in</a> to track whether you own this.</p>
         @else
-            @if (session('status'))<p>{{ session('status') }}</p>@endif
+            @if (session('status'))<p role="status">{{ session('status') }}</p>@endif
             @php($owned = $bottles->where('status', \App\Models\Bottle::OWNED))
             <p>{{ $owned->isEmpty() ? 'You don\'t own this yet.' : 'You own '.$owned->count() }}</p>
             <form method="post" action="/polishes/{{ $polish->id }}/bottles">
                 @csrf
-                <label>Location
-                    <select name="location_id">
-                        <option value="">No location</option>
-                        @foreach ($locations as $location)
-                            <option value="{{ $location->id }}">{{ $location->name }}</option>
-                        @endforeach
-                    </select></label>
-                <label>or new <input name="new_location" maxlength="100"></label>
-                @error('location_id')<p>{{ $message }}</p>@enderror
-                @error('new_location')<p>{{ $message }}</p>@enderror
-                <button>{{ $owned->isEmpty() ? 'I own this' : 'Add another' }}</button>
+                <div class="form-row">
+                    <div class="field">
+                        <label for="location_id">Location</label>
+                        <select id="location_id" name="location_id">
+                            <option value="">No location</option>
+                            @foreach ($locations as $location)
+                                <option value="{{ $location->id }}">{{ $location->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="field"><label for="new_location">or a new one</label><input id="new_location" name="new_location" maxlength="100"></div>
+                    <button class="btn-primary">{{ $owned->isEmpty() ? 'I own this' : 'Add another' }}</button>
+                </div>
+                <x-error name="location_id" />
+                <x-error name="new_location" />
             </form>
         @endif
     </section>
     @if ($polish->isPrivate() && $polish->user_id === auth()->id())
-        <section>
+        <section class="card">
             <p><strong>Private</strong> — only you can see this polish. <a href="/my-polishes/{{ $polish->id }}/edit">Edit</a></p>
             @if ($polish->promotion_requested_at)
-                <form method="post" action="/my-polishes/{{ $polish->id }}/suggest">@csrf @method('delete')
-                    <button>Withdraw my suggestion</button> (waiting for the Admin)</form>
+                <form method="post" action="/my-polishes/{{ $polish->id }}/suggest" class="row">@csrf @method('delete')
+                    <button class="btn-sm">Withdraw my suggestion</button> <span class="meta">(waiting for the Admin)</span></form>
             @else
                 <form method="post" action="/my-polishes/{{ $polish->id }}/suggest">@csrf
-                    <button>Suggest for the public Catalog</button></form>
+                    <button class="btn-sm">Suggest for the public Catalog</button></form>
             @endif
         </section>
     @elseif (! $polish->isPrivate() && auth()->user()?->is_admin)

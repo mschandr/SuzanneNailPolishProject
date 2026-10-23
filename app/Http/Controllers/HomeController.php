@@ -21,6 +21,8 @@ class HomeController extends Controller
 
         return view('home', [
             'ownedCount' => $user->bottles()->where('status', Bottle::OWNED)->count(),
+            'recent' => $user->bottles()->where('status', Bottle::OWNED)->with('polish.brand')->latest()->limit(4)->get(),
+            'manicureCount' => $user->manicures()->count(),
         ]);
     }
 }

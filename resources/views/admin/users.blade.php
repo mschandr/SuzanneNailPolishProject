@@ -1,24 +1,31 @@
 @extends('layouts.app')
 
+@section('title', 'Admins')
+
 @section('content')
     <h1>Admins</h1>
-    <ul>
+    @include('admin._nav')
+    <ul class="list">
         @foreach ($admins as $admin)
-            <li>
-                {{ $admin->display_name ?? $admin->email }} ({{ $admin->email }})
+            <li class="row">
+                <span class="grow">{{ $admin->display_name ?? $admin->email }} ({{ $admin->email }})</span>
                 @unless ($admin->is(auth()->user()))
-                    <form method="post" action="/admin/users/{{ $admin->id }}" style="display:inline">
-                        @csrf @method('delete')<button>Remove</button>
+                    <form method="post" action="/admin/users/{{ $admin->id }}"
+                          onsubmit="return confirm('Remove Admin rights from this person?')">
+                        @csrf @method('delete')<button class="btn-danger btn-sm">Remove</button>
                     </form>
                 @endunless
             </li>
         @endforeach
     </ul>
-    @error('user')<p>{{ $message }}</p>@enderror
-    <form method="post" action="/admin/users">
+    @error('user')<p role="alert">{{ $message }}</p>@enderror
+    <form method="post" action="/admin/users" class="card">
         @csrf
-        <label>Grant Admin to (email of an existing user) <input type="email" name="email" required></label>
-        @error('email')<p>{{ $message }}</p>@enderror
-        <button>Grant</button>
+        <div class="field">
+            <label for="grant-email">Grant Admin to <span class="hint">Email of an existing user</span></label>
+            <input id="grant-email" type="email" name="email" required>
+            <x-error name="email" />
+        </div>
+        <button class="btn-primary">Grant</button>
     </form>
 @endsection

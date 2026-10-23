@@ -38,6 +38,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 Route::get('/health', HealthController::class);
+Route::view('/privacy', 'legal.privacy');
+Route::view('/terms', 'legal.terms');
 
 // Public routes whose access is decided per Manicure (private ones answer 404).
 Route::get('/photos/{id}/{variant}', [ManicurePhotoController::class, 'show'])->whereUuid('id');

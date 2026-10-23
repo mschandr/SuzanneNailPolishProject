@@ -37,7 +37,7 @@ return new class extends Migration
         });
 
         Schema::table('polishes', function (Blueprint $table) {
-            // Imported without a colour family or finish: listed for the Admin to complete. Cleared when saved in the form.
+            // Imported without a color family or finish: listed for the Admin to complete. Cleared when saved in the form.
             $table->boolean('needs_review')->default(false);
             // A link to an image hosted elsewhere (from an import). Never copied; the page shows it from its source.
             $table->string('swatch_url', 2048)->nullable();

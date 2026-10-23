@@ -51,7 +51,7 @@ class NeedsReviewTest extends TestCase
 
         $page = $this->actingAs($this->admin)->get('/admin/needs-review');
 
-        $page->assertSee('No Colour')->assertSee('colour family')->assertSee('No Finish')->assertSee('finish');
+        $page->assertSee('No Colour')->assertSee('color family')->assertSee('No Finish')->assertSee('finish');
     }
 
     public function test_the_count_is_shown_on_the_admin_home_and_it_is_empty_when_all_is_done(): void

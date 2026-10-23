@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
  *   exists     the Catalog already has that brand + shade (public ones only): never touched
  *   duplicate  the same brand + shade appeared earlier in this file
  *   invalid    something is wrong with the row (see its problems)
- * Colour family and finish names that don't match the Admin-managed lists are a warning, not an error: the polish is
+ * Color family and finish names that don't match the Admin-managed lists are a warning, not an error: the polish is
  * added without them and flagged for review.
  */
 class PolishCsv
@@ -142,7 +142,7 @@ class PolishCsv
         $notes = [];
 
         if ($row['color_family'] !== null && ! isset($colors[Str::lower($row['color_family'])])) {
-            $notes[] = "Colour family \"{$row['color_family']}\" is not in the list, so it is left blank.";
+            $notes[] = "Color family \"{$row['color_family']}\" is not in the list, so it is left blank.";
         }
         foreach (self::splitFinishes($row['finishes']) as $name) {
             if (! isset($finishes[Str::lower($name)])) {

@@ -5,6 +5,26 @@ out, signed in, as a new user and as the Admin, on a production-style stack with
 measured (overflow, tap-target size, text size, headings, landmarks, page titles) and scanned with axe-core for
 accessibility problems. Findings are in priority order; nothing here has been changed except the two bugs marked FIXED.
 
+## Status after the redesign (October 2026)
+
+Re-run on the same 58 screens (115 captures at phone and desktop width): **no horizontal overflow, one `<h1>` and a
+distinct tab title on every page, zero axe-core violations, no broken images.** One hand-written stylesheet
+(`public/css/site.css`, no build step) and one small script (`public/js/app.js`) replace the inline styles.
+
+Done: design foundation, phone menu with current-page marking and a "More" group, skip link, 44 px tap targets on
+controls, Home with "do I already own this?" search and recent additions, landing page with a call to action, labelled
+forms with errors under the field, danger styling and separate "danger zones" for destructive actions, branded 403/404/
+419/429/500/503 pages, Privacy and Terms pages with a footer, accessible pagination, labelled rename fields, Catalog
+A-Z jump list and **catalog-wide polish search**, collapsible Gallery filters with active-filter chips, swatches in
+collection and layer lists, brand-page checkbox overlay with a selection bar, upload buttons that lock after the first
+tap, admin dashboard with counts and one admin navigation, responsive import table, "color" spelling everywhere.
+
+Not done (still open): a hand diagram for the ten nails, a real upload progress bar and photo preview (the button only
+locks and shows a message), grouping the Collection by location, swipe/zoom on Manicure photos, a Report menu, a
+landing page with screenshots. The Privacy and Terms text is a plain-language first draft: have it read before launch.
+
+The findings below are the original review, kept for the record.
+
 ## In one paragraph
 
 The app works and its structure is sound: every page has a language, a viewport, one main landmark and meaningful

@@ -5,7 +5,7 @@
 @section('content')
     <h1>Photo credits</h1>
     <p>Some photos here were taken by other people and shared under open licenses. Thank you to everyone below.</p>
-    <ul>
+    <ul class="list">
         @forelse ($manicures as $manicure)
             <li>
                 <a href="/manicures/{{ $manicure->id }}">{{ $manicure->credit }}</a>
