@@ -18,6 +18,7 @@
 
     <h2>Catalog</h2>
     <ul class="link-list">
+        <li><a href="/admin/polishes">Find and edit a polish</a></li>
         <li><a href="/admin/polishes/create">Add a polish</a></li>
         <li><a href="/admin/imports">Import polishes</a></li>
         <li><a href="/admin/finishes">Finishes</a></li>

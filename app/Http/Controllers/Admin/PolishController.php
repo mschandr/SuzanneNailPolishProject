@@ -15,6 +15,31 @@ use Illuminate\Support\Str;
 
 class PolishController extends Controller
 {
+    /** Find any public Polish by shade or brand and open it for editing. */
+    public function index(Request $request)
+    {
+        $q = is_string($raw = $request->query('q')) ? trim(mb_substr($raw, 0, 100)) : '';
+
+        $query = Polish::public()
+            ->join('brands', 'brands.id', '=', 'polishes.brand_id')
+            ->select('polishes.*')
+            ->with('brand')
+            ->orderBy('brands.name_key')->orderBy('polishes.name_key');
+
+        if ($q !== '') {
+            // "!" escapes LIKE wildcards; a backslash inside SQL breaks PDO's Postgres placeholder parsing.
+            $like = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower($q)).'%';
+            $query->where(fn ($w) => $w
+                ->whereRaw("polishes.name_key like ? escape '!'", [$like])
+                ->orWhereRaw("brands.name_key like ? escape '!'", [$like]));
+        }
+
+        return view('admin.polishes', [
+            'polishes' => $query->paginate(30)->withQueryString(),
+            'q' => $q,
+        ]);
+    }
+
     public function create()
     {
         return $this->form(new Polish);

@@ -128,6 +128,7 @@ Route::middleware('auth')->group(function () {
 
         Route::middleware('admin')->prefix('admin')->group(function () {
             Route::get('/', AdminHomeController::class);
+            Route::get('/polishes', [AdminPolishController::class, 'index']);
             Route::get('/polishes/create', [AdminPolishController::class, 'create']);
             Route::post('/polishes', [AdminPolishController::class, 'store']);
             Route::get('/polishes/{id}/edit', [AdminPolishController::class, 'edit'])->whereUuid('id');

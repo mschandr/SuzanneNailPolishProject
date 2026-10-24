@@ -40,7 +40,7 @@
     @if ($locations !== null)
         <div class="action-bar" id="bulk-bar">
             <div class="form-row">
-                <button type="button" id="select-all" class="btn-sm">Select all on this page</button>
+                <button type="button" id="select-all">Select all on this page</button>
                 <div class="field">
                     <label for="bulk-location">Location</label>
                     <select id="bulk-location" name="location_id" form="bulk">
