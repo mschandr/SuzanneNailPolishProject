@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
+use App\Support\CaptureSentMail;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::defaultView('pagination.site');
+
+        if (config('nailpolish.mail_capture')) {
+            Event::listen(MessageSent::class, CaptureSentMail::class);
+        }
 
         // Every limiter goes through limits() so LOAD_TEST_MODE can lift them all in one place.
         RateLimiter::for('magic-link', fn (Request $request) => $this->limits([
